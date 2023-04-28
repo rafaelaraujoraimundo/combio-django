@@ -1,0 +1,14 @@
+Ativar VENV
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+.\venv\Scripts\activate
+
+git init
+ssh-keygen
+
+(venv) PS D:\Projetos\Django\curso-django-projeto1> ssh-keygen
+Your identification has been saved in C:\Users\Rafael Araujo/.ssh/id_rsa
+Your public key has been saved in C:\Users\Rafael Araujo/.ssh/id_rsa.pub
+
+git remote add origin git@github.com:rafaelaraujoraimundo/curso-django-projeot1.git
+
+git remote -v
