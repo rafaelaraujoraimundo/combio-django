@@ -1,0 +1,55 @@
+{% load static %}
+<div class="iq-sidebar">
+    <div class="iq-navbar-logo d-flex justify-content-between">
+       <a href="{% url "index" %}" class="header-logo">
+          <img src="{% static 'images/logo.png'  %}" class="" alt="">
+          <span></span>
+       </a>
+       <div class="iq-menu-bt align-self-center">
+          <div class="wrapper-menu">
+             <div class="main-circle"><i class="ri-menu-line"></i></div>
+             <div class="hover-circle"><i class="ri-close-fill"></i></div>
+          </div>
+       </div>
+    </div>
+    <div id="sidebar-scrollbar">
+       <nav class="iq-sidebar-menu">
+          <ul id="iq-sidebar-toggle" class="iq-menu">
+             <li>
+                <a href="#dashboard" class="iq-waves-effect" data-toggle="collapse" aria-expanded="true"><span class="ripple rippleEffect"></span><i class="las la-home iq-arrow-left"></i><span>Dashboard</span><i class="ri-arrow-right-s-line iq-arrow-right"></i></a>
+                <ul id="dashboard" class="iq-submenu collapse" data-parent="#iq-sidebar-toggle">
+                   <li><a href="index.html"><i class="las la-laptop-code"></i>TI</a></li>
+                   
+                </ul>
+             </li>
+             <li>
+                <a href="#forms" class="iq-waves-effect collapsed" data-toggle="collapse" aria-expanded="false"><i class="lab la-wpforms iq-arrow-left"></i><span>Forms</span><i class="ri-arrow-right-s-line iq-arrow-right"></i></a>
+                <ul id="forms" class="iq-submenu collapse" data-parent="#iq-sidebar-toggle">
+                   <li><a href="form-layout.html"><i class="las la-book"></i>Form Elements</a></li>
+                   <li><a href="form-validation.html"><i class="las la-edit"></i>Form Validation</a></li>
+                   <li><a href="form-switch.html"><i class="las la-toggle-off"></i>Form Switch</a></li>
+                   <li><a href="form-chechbox.html"><i class="las la-check-square"></i>Form Checkbox</a></li>
+                   <li><a href="form-radio.html"><i class="ri-radio-button-line"></i>Form Radio</a></li>
+                </ul>
+             </li>
+             <li>
+                <a href="#wizard-form" class="iq-waves-effect collapsed" data-toggle="collapse" aria-expanded="false"><i class="ri-archive-drawer-line iq-arrow-left"></i><span>Forms Wizard</span><i class="ri-arrow-right-s-line iq-arrow-right"></i></a>
+                <ul id="wizard-form" class="iq-submenu collapse" data-parent="#iq-sidebar-toggle">
+                   <li><a href="form-wizard.html"><i class="ri-clockwise-line"></i>Simple Wizard</a></li>
+                   <li><a href="form-wizard-validate.html"><i class="ri-clockwise-2-line"></i>Validate Wizard</a></li>
+                   <li><a href="form-wizard-vertical.html"><i class="ri-anticlockwise-line"></i>Vertical Wizard</a></li>
+                </ul>
+             </li>
+             <li>
+                <a href="#tables" class="iq-waves-effect collapsed" data-toggle="collapse" aria-expanded="false"><i class="ri-table-line iq-arrow-left"></i><span>Table</span><i class="ri-arrow-right-s-line iq-arrow-right"></i></a>
+                <ul id="tables" class="iq-submenu collapse" data-parent="#iq-sidebar-toggle">
+                   <li><a href="tables-basic.html"><i class="ri-table-line"></i>Basic Tables</a></li>
+                   <li><a href="data-table.html"><i class="ri-database-line"></i>Data Table</a></li>
+                   <li><a href="table-editable.html"><i class="ri-refund-line"></i>Editable Table</a></li>
+                </ul>
+             </li>
+          </ul>
+       </nav>
+       <div class="p-3"></div>
+    </div>
+ </div>

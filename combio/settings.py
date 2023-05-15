@@ -55,6 +55,7 @@ INSTALLED_APPS += [
 INSTALLED_APPS += [
     "users",
     "menu",
+    "dashboard",
 ]
 
 SITE_ID = 1
@@ -98,6 +99,14 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+    },
+    "dwcombio_db": {
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": "dw_combio",
+        "USER": "usr_combio",
+        "PASSWORD": "Cmb@Dw12.2020",
+        "HOST": "172.16.0.15",
+        "PORT": "3306",
     }
 }
 
@@ -161,3 +170,5 @@ AUTHENTICATION_BACKENDS = [
     # `allauth` specific authentication methods, such as login by e-mail
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
+
+DATABASE_ROUTERS = ['routers.db_routers.dwcombioRouter']

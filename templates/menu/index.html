@@ -1,168 +1,99 @@
-{% extends "menu/base.html" %}
 
-{% load widget_tweaks %}
-
-
-{% block conteudo %}
-<div class="container-fluid">
- 
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-dismissible alert-{{ message.tags }}" role="alert">
-                {{ message }}
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+{% load static %}
+<!doctype html>
+<html lang="en">
+   <head>
+      <!-- Required meta tags -->
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+      <title>Combio Energia</title>
+      <!-- Favicon -->
+      <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}" />
+      <!-- Bootstrap CSS -->
+      <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+      <!-- Typography CSS -->
+      <link rel="stylesheet" href="{% static 'css/typography.css' %}">
+      <!-- Style CSS -->
+      <link rel="stylesheet" href="{% static 'css/style.css' %}">
+      <!-- Responsive CSS -->
+      <link rel="stylesheet" href="{% static 'css/responsive.css' %}">
+   </head>
+   <body class="sidebar-main-active right-column-fixed">
+      <!-- loader Start -->
+      <div id="loading">
+         <div id="loading-center">
+         </div>
+      </div>
+      <!-- loader END -->
+      <!-- Wrapper Start -->
+      <div class="wrapper">
+         <!-- Sidebar  -->
+         {% include "menu/partials/sidebar.html" %}
+         <!-- TOP Nav Bar -->
+         {% include "menu/partials/topbar.html" %}      
+         <!-- TOP Nav Bar END -->
+         
+         <!-- Page Content  -->
+         <div id="content-page" class="content-page">
+            <div class="container-fluid">
+               <div class="row">
+                  <div class="col-lg-12">
+                     PAGINA INICIAL
+                                    </div>
+               </div>
             </div>
-        {% endfor %}
-    {% endif %}
-
-    <div class="row">
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-warning shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Visitantes aguardando autorização</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ visitantes_aguardando }}</div>
-                        </div>
-                        
-                        <div class="col-auto">
-                            <i class="fas fa-user-lock fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-primary shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Visitantes no condomínio</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ visitantes_em_visita }}</div>
-                        </div>
-                        
-                        <div class="col-auto">
-                            <i class="fas fa-user-clock fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-success shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Visitas finalizadas</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ visitantes_finalizado }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-user-check fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-info shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Visitantes registrados no mês atual</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ visitantes_mes }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-users fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+         </div>
+      </div>
+      <!-- Wrapper END -->
+       <!-- Footer -->
+      {% include "menu/partials/footer.html" %} 
+      <!-- Footer END -->
     
-    <div class="card shadow mb-4">
-        <div class="card-header py-3 d-sm-flex align-items-center justify-content-between mb-4">
-            <h6 class="m-0 font-weight-bold text-primary">Visitantes recentes</h6>
-        </div>
-
-        <div class="card-body">
-            <p class="mr-2 text-right">
-                <small>
-                    Exibindo {{ pagina_obj.paginator.count }} registros
-                </small>
-            </p>
-
-            <div class="table-responsive">
-                <table class="table table-bordered dataTable" id="dataTable" width="100%" cellspacing="0" role="grid" aria-describedby="dataTable_info" style="width: 100%;">
-                    <thead>
-                        <th>Nome</th>
-                        <th>CPF</th>
-                        <th>Horário de chegada</th>
-                        <th>Horário da autorização</th>
-                        <th>Autorizado por</th>
-                        <th>Status</th>
-                        <th>Mais informações</th>
-                    </thead>
-
-                    <tbody>
-                        {% for visitante in pagina_obj %}
-                            <tr>
-                                <td>{{ visitante.nome_completo }}</td>
-                                <td>{{ visitante.get_cpf }}</td>
-                                <td>{{ visitante.horario_chegada }}</td>
-                                <td>{{ visitante.get_horario_autorizacao }}</td>
-                                <td>{{ visitante.get_morador_responsavel }}</td>
-                                <td>{{ visitante.get_status_display }}</td>
-                                <td>
-                                    <a href="{% url 'informacoes_visitante' token=visitante.token %}">
-                                        Ver informações
-                                    </a>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-
-            <nav aria-label="Page navigation example">
-                <p class="mr-2 text-right">
-                    <small>
-                        Página {{ pagina_obj.number }} de um total de {{ pagina_obj.paginator.num_pages }}
-                    </small>
-                </p>
-
-                <ul class="pagination justify-content-end">
-                    {% if pagina_obj.has_previous %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ pagina_obj.previous_page_number }}" tabindex="-1">Página anterior</a>
-                        </li>
-                    {% endif %}
-
-                    {% for numero_pagina in pagina_obj.paginator.page_range %}
-                        {% if pagina_obj.number == numero_pagina %}
-                            <li class="page-item active">
-                                <a class="page-link" href="">{{ numero_pagina }}</a>
-                            </li>
-                        {% else %}
-                            <li class="page-item">
-                                <a class="page-link" href="?page={{ numero_pagina }}">{{ numero_pagina }}</a>
-                            </li>
-                        {% endif %}
-                    {% endfor %}
-
-                    {% if pagina_obj.has_next %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ pagina_obj.next_page_number }}">Próxima página</a>
-                        </li>
-                    {% endif %}
-                </ul>
-            </nav>
-        </div>
-    </div>
-</div>
-{% endblock conteudo %}
+      <!-- Optional JavaScript -->
+      <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+      <script src={% static "js/jquery.min.js" %}></script>
+      <script src={% static "js/popper.min.js" %}></script>
+      <script src={% static "js/bootstrap.min.js" %}></script>
+      <!-- Appear JavaScript -->
+      <script src={% static "js/jquery.appear.js" %}></script>
+      <!-- Countdown JavaScript -->
+      <script src={% static "js/countdown.min.js" %}></script>
+      <!-- Counterup JavaScript -->
+      <script src={% static "js/waypoints.min.js" %}></script>
+      <script src={% static "js/jquery.counterup.min.js" %}></script>
+      <!-- Wow JavaScript -->
+      <script src={% static "js/wow.min.js" %}></script>
+      <!-- Apexcharts JavaScript -->
+      <script src={% static "js/apexcharts.js" %}></script>
+      <!-- Slick JavaScript -->
+      <script src={% static "js/slick.min.js" %}></script>
+      <!-- Select2 JavaScript -->
+      <script src={% static "js/select2.min.js" %}></script>
+      <!-- Owl Carousel JavaScript -->
+      <script src={% static "js/owl.carousel.min.js" %}></script>
+      <!-- Magnific Popup JavaScript -->
+      <script src={% static "js/jquery.magnific-popup.min.js" %}></script>
+      <!-- Smooth Scrollbar JavaScript -->
+      <script src={% static "js/smooth-scrollbar.js" %}></script>
+      <!-- lottie JavaScript -->
+      <script src={% static "js/lottie.js" %}></script>
+      <!-- am core JavaScript -->
+      <script src={% static "js/core.js" %}></script>
+      <!-- am charts JavaScript -->
+      <script src={% static "js/charts.js" %}></script>
+      <!-- am animated JavaScript -->
+      <script src={% static "js/animated.js" %}></script>
+      <!-- am kelly JavaScript -->
+      <script src={% static "js/kelly.js" %}></script>
+      <!-- am maps JavaScript -->
+      <script src={% static "js/maps.js" %}></script>
+      <!-- am worldLow JavaScript -->
+      <script src={% static "js/worldLow.js" %}></script>
+      <!-- Style Customizer -->
+      <script src={% static "js/style-customizer.js" %}></script>
+      <!-- Chart Custom JavaScript -->
+      <script src={% static "js/chart-custom.js" %}></script>
+      <!-- Custom JavaScript -->
+      <script src={% static "js/custom.js" %}></script>
+   </body>
+</html>
