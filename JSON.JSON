@@ -1,0 +1,135 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://service.execbo.ws.framework.totvs.com">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <ser:callProcedureWithToken>
+         
+         <arg0>eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJzdXBlciIsImlhdCI6MTY4NDI2Mjc3OSwiZXhwIjoxNjg0MjY0NTc5fQ.HB47imgRFBgx60qxaB_zalnBr3-GqCRKfqjg2RQJTvfE1HGJ6HC9H_tNAxmSKzuJzbwTw5-LY5v7PQ11ujWq4vUrRHXxlDPAmqfv2sXQNIdfnbvQYRPh83t62tGJ3zqv73TZMeqaoa691zhSsa0VZvoUa-HI-Wwfim6WjdW4elRdk6qYRne1_Lh2rvl-iPIODHuEYwBcayZQlVaIQyndw7KCgXXiIPlRvK88JUgUIrF_iKElmMObDWSidoYOasB3LyOJiQiuugWu-W0uJTkJsZgSVM4uLFz56PcZZ-QOne2XyA2lNTNAuxG-LdOHGBGEJQT0vHdWB6up2vxhlNnwbg</arg0>
+         <arg1>esp/ESCDI0034.p</arg1>
+         <arg2>pi-cria-transporte</arg2>
+         <arg3>
+[
+    {
+"dataType":"temptable",
+"name":"tt-transportadora",
+"type":"input",
+"value":{
+  "name":"tt-transportadora",
+  "fields":[
+    {
+        "type":"character",
+        "name":"nomeAbrev",
+        "label":"nomeAbrev"
+     },
+     {
+        "type":"character",
+        "name":"nomeCompleto",
+        "label":"nomeCompleto"
+     },
+     {
+        "type":"integer",
+        "name":"natureza",
+        "label":"natureza"
+     },
+     {
+        "type":"character",
+        "name":"cnpj",
+        "label":"cnpj"
+     },
+     {
+        "type":"character",
+        "name":"insEstadual",
+        "label":"insEstadual"
+     },
+     {
+        "type":"integer",
+        "name":"viaTransporte",
+        "label":"viaTransporte"
+     },
+     {
+        "type":"character",
+        "name":"endereco",
+        "label":"endereco"
+     },
+     {
+        "type":"character",
+        "name":"bairro",
+        "label":"bairro"
+     },
+     {
+        "type":"character",
+        "name":"cep",
+        "label":"cep"
+     },
+     {
+        "type":"character",
+        "name":"cidade",
+        "label":"cidade"
+     },
+     {
+        "type":"character",
+        "name":"uf",
+        "label":"uf"
+     },
+     {
+        "type":"character",
+        "name":"pais",
+        "label":"pais"
+     }
+  ],
+  "records":[{
+    
+        "nomeAbrev":"Transp Certp 22",
+        "nomeCompleto":"Transp Certop ",
+        "natureza":2,
+        "cnpj":"1111111111111",
+        "insEstadual":"1245",
+        "viaTransporte":1,
+        "endereco":"RUA CAPITAO ARGEMIRO MONTEIRO WANDERLEY",
+        "bairro":"CAPAO RASO",
+        "cidade":"CURITIBA",
+        "pais":"Brasil",
+        "cep":"81130160",
+        "uf":"PR"		   
+     }
+  ]
+}
+},
+{
+"name": "ttErrosFluig",
+"type": "output",
+"dataType": "temptable",
+"value": {
+ "name": "ttErrosFluig",
+ "fields": [
+     {
+     "name":  "codErro",
+     "label": "codErro",
+     "type":  "integer"
+},
+     {
+     "name":  "descErro",
+     "label": "descErro",
+     "type":  "character"
+},
+{
+     "name":  "cgc",
+     "label": "cgc",
+     "type":  "character"
+     }
+
+     
+ ],
+ "records": [{
+   
+ }]
+}},
+{
+"dataType":"LONGCHAR",
+"name":"pLog",
+"type":"output",
+"label": "pLog"
+}
+]        </arg3>
+      </ser:callProcedureWithToken>
+   </soapenv:Body>
+</soapenv:Envelope>

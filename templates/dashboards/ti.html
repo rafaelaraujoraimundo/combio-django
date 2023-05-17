@@ -1,0 +1,10 @@
+{% extends 'menu/index.html'%}
+{% block content %}
+<form method="GET" action={% url 'chamadosti' %}>
+{{ form.as_p}}
+<button>Submit</button>
+</form>
+{{ chart|safe }}
+
+{{ chart2|safe}}
+{% endblock content %}
