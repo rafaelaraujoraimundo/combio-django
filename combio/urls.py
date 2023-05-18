@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.contrib.auth import views as auth_views
 from menu.views import index
-from dashboard.views import chamadosti
+from dashboard.views import chamadosti, OrcadoRealizado_dash
 
 urlpatterns = [
     path('admin/', admin.site.urls, name="admin1"),
@@ -37,5 +37,6 @@ urlpatterns = [
     ),
     path('accounts/', include('allauth.urls')),
     path('users/', include('users.urls')),
-    path('dashboards/', chamadosti, name="chamadosti"),
+    path('dashboards/ti', chamadosti, name="chamadosti"),
+    path('dashboards/orcado', OrcadoRealizado_dash, name="OrcadoRealizado_dash"),
 ]

@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-l2nox$827zc3_)n%yf+id6t2%&hq3ocgo)6s$hpu4p4fwm!=rl
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 sys.path.append(os.path.join(BASE_DIR, "apps"))
 
@@ -156,7 +156,7 @@ AUTH_USER_MODEL = "users.user"
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_AUTHENTICATION_METHOD = "email"
-ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_USER_MODEL_USERNAME_FIELD: None
 ACCOUNT_EMAIL_VERIFICATION = "none"
 SOCIALACCOUNT_AUTO_SIGNUP = True
 # Default primary key field type
