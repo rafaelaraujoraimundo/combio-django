@@ -1,9 +1,5 @@
 from django.shortcuts import render
-import plotly.express as px
 from dashboard.forms import DateForm
-from django.db.models import Count, Q
-from django.db.models.functions import ExtractYear, TruncMonth, Concat, Cast, Extract
-from django.db.models import Value, CharField
 import pandas as pd
 import plotly.graph_objects as go
 from datetime import datetime
@@ -20,7 +16,9 @@ def chamadosti(request):
     activemenu = 'TI'
     groups = GetGroup()
     menus = GetMenu()
-    chamadosti = BiChamadosServiceUp.objects.raw(""" SELECT 1 as ticket_id, DATE(DATE_SUB(created, INTERVAL (DAYOFMONTH(created) - 1) DAY)) AS ANO_MES, COUNT(created) abertos, count(closed) fechados
+    chamadosti = BiChamadosServiceUp.objects.raw(""" SELECT 1 as ticket_id,
+    DATE(DATE_SUB(created, INTERVAL (DAYOFMONTH(created) - 1) DAY)) AS ANO_MES,
+            COUNT(created) abertos, count(closed) fechados
     FROM bi_chamados_service_up
     group by CONCAT(SUBSTR(created, 1, 4), '-', SUBSTR(created, 6, 2))""")
     start = request.GET.get('start')
@@ -131,15 +129,16 @@ def OrcadoRealizado_dash(request):
     # Criar a primeira tabela usando Plotly
     pivot_df = df.pivot_table(values='valorTotalRealizado',
                               index=['Regional', 'NOME_FANTASIA', 'centroCusto',
-                                     'descricaoCusto', 'conta', 'descricaoConta'],
+                                     'descricaoCusto', 'conta',
+                                     'descricaoConta'],
                               columns='primeiroDiaMes')
 
 # Resetar o índice para converter em colunas
     pivot_df.reset_index(inplace=True)
 
 # Renomear as colunas
-    pivot_df.columns = ['REGIONAL', 'NOME_FANTASIA', 'CENTRO DE CUSTO', 'descricaoCusto'
-                        'CONTA', 'DESCRICAO_CONTA'] + pivot_df.columns[5:].tolist()
+    pivot_df.columns = ['REGIONAL', 'NOME_FANTASIA', 'CENTRO DE CUSTO',
+                        'descricaoCusto', 'CONTA', 'DESCRICAO_CONTA'] + pivot_df.columns[5:].tolist()
     pivot_df.fillna(0, inplace=True)
 # Verificar as colunas presentes no pivot_df
     print(pivot_df.columns)
