@@ -6,16 +6,18 @@ from datetime import datetime
 import pandas as pd
 import mysql.connector
 from menu.menu import GetGroup, GetMenu
-# Create your views here.
-
+from django.contrib.auth.decorators import permission_required
+from django.urls import reverse_lazy
 from dashboard.models import BiChamadosServiceUp
 
 
-def chamadosti(request):
+@permission_required('global_permissions.combio_dashboard_ti', login_url='erro_page')
+def dashboard_ti(request):
     activegroup = 'Dashboard'
-    activemenu = 'TI'
+    activemenu = 'dashboard_ti'
     groups = GetGroup()
     menus = GetMenu()
+    user_groups = request.user.groups.all()
     chamadosti = BiChamadosServiceUp.objects.raw(""" SELECT 1 as ticket_id,
     DATE(DATE_SUB(created, INTERVAL (DAYOFMONTH(created) - 1) DAY)) AS ANO_MES,
             COUNT(created) abertos, count(closed) fechados
@@ -86,11 +88,16 @@ def chamadosti(request):
     context = {'chart': chart, 'form': DateForm,
                'chart2': chart2, 'groups': groups,
                'menus': menus, 'activegroup': activegroup,
-               'activemenu': activemenu}
+               'activemenu': activemenu, 'user_groups': user_groups}
     return render(request, 'dashboards/ti.html', context)
 
 
-def OrcadoRealizado_dash(request):
+def dashboard_controladoria(request):
+    activegroup = 'Dashboard'
+    activemenu = 'dashboard_controladoria'
+    groups = GetGroup()
+    menus = GetMenu()
+    user_groups = request.user.groups.all()
     # Conectar ao banco de dados
     con = mysql.connector.connect(
         host='172.16.0.15', database='dw_combio', user='usr_combio',
@@ -138,7 +145,7 @@ def OrcadoRealizado_dash(request):
 
 # Renomear as colunas
     pivot_df.columns = ['REGIONAL', 'NOME_FANTASIA', 'CENTRO DE CUSTO',
-                        'descricaoCusto', 'CONTA', 'DESCRICAO_CONTA'] + pivot_df.columns[5:].tolist()
+                        'descricaoCusto', 'CONTA', 'DESCRICAO_CONTA'] + pivot_df.columns[6:].tolist()
     pivot_df.fillna(0, inplace=True)
 # Verificar as colunas presentes no pivot_df
     print(pivot_df.columns)
@@ -152,17 +159,17 @@ def OrcadoRealizado_dash(request):
 # Definir o layout do gráfico
     fig1.update_layout(
         # Adicionar barra de rolagem horizontal
-        width='800',
-        height='500px',
+        width=800,
+        height=500,
         margin=dict(t=10, b=10, l=10, r=10),
         paper_bgcolor='rgba(0,0,0,0)',
         plot_bgcolor='rgba(0,0,0,0)',
         font=dict(color='#2f2f2f'),
-        xaxis=dict(showgrid=False, zeroline=False),
-        yaxis=dict(showgrid=False, zeroline=False),
+        xaxis=dict(showgrid=True, zeroline=False),
+        yaxis=dict(showgrid=True, zeroline=False),
         hovermode='closest',
-        showlegend=False,
-        autosize=True,
+        showlegend=True,
+        autosize=False,
     )
 
     # Converter a primeira tabela para HTML
@@ -189,7 +196,11 @@ def OrcadoRealizado_dash(request):
         table2_html = fig2.to_html(full_html=False)
 
         # Renderizar o template com as tabelas em HTML
-        return render(request, 'dashboards/controladoria.html', {'table1_html': table1_html, 'table2_html': table2_html})
+        return render(request, 'dashboards/controladoria.html', {'table1_html': table1_html, 'table2_html': table2_html, 'groups': groups,
+                                                                 'menus': menus, 'activegroup': activegroup,
+                                                                 'activemenu': activemenu, 'user_groups': user_groups})
 
     # Renderizar o template inicial
-    return render(request, 'dashboards/controladoria.html', {'table1_html': table1_html})
+    return render(request, 'dashboards/controladoria.html', {'table1_html': table1_html, 'groups': groups,
+                                                             'menus': menus, 'activegroup': activegroup,
+                                                             'activemenu': activemenu, 'user_groups': user_groups})
