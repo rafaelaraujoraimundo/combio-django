@@ -16,17 +16,20 @@
        <nav class="iq-sidebar-menu">
           <ul id="iq-sidebar-toggle" class="iq-menu collapse show">
             {% for group in groups %} 
+            {% if group.permission in user_groups %}
             <li  {% if activegroup == group.NomeGrupo %} class="active" {% endif %}>
                 <a href="#{{group.NomeGrupo}}" class="iq-waves-effect collapsed" data-toggle="collapse" {% if activegroup == group.NomeGrupo %} aria-expanded="true" {% else %} aria-expanded="false" {% endif %} > <span class="ripple rippleEffect"></span><i class="{{ group.icon_grupo }} iq-arrow-left"></i><span>{{ group.NomeGrupo }}</span><i class="ri-arrow-right-s-line iq-arrow-right"></i></a>
                 <ul id="{{group.NomeGrupo}}" {% if activegroup == group.NomeGrupo %} class="iq-submenu collapse show"  {% else %} class="iq-submenu collapse" {% endif %} data-parent="#iq-sidebar-toggle">
                   {% for menu in menus %} 
+                  {% if menu.permission in user.user_permissions.all %}
                   {% if menu.grupo_id.id == group.id  %}
-                  <li {% if activemenu == menu.Item %} class="active" {% endif %}><a href="index.html"><i class="{{ menu.icon_item}}"></i>{{menu.Item}}</a></li>
+                  <li {% if activemenu == menu.codigo %} class="active" {% endif %}><a href="{% url menu.url %}"><i class="{{ menu.icon_item}}"></i>{{menu.Item}}</a></li>
+                  {% endif %}
                   {% endif %}
                   {% endfor %}
                 </ul>
              </li>
-            
+             {% endif %}
             {% endfor %}
                     
           </ul>

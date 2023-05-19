@@ -17,8 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.contrib.auth import views as auth_views
-from menu.views import index
-from dashboard.views import chamadosti, OrcadoRealizado_dash
+from menu.views import index, erro_page
 
 urlpatterns = [
     path('admin/', admin.site.urls, name="admin1"),
@@ -37,6 +36,10 @@ urlpatterns = [
     ),
     path('accounts/', include('allauth.urls')),
     path('users/', include('users.urls')),
-    path('dashboards/ti', chamadosti, name="chamadosti"),
-    path('dashboards/orcado', OrcadoRealizado_dash, name="OrcadoRealizado_dash"),
+    path('dashboards/', include('dashboard.urls')),
+    path(
+        "error/",
+        erro_page,
+        name="erro_page",
+    ),
 ]
