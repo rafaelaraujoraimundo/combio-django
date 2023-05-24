@@ -49,14 +49,17 @@ INSTALLED_APPS += [
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
     "global_permissions",
+    "crispy_forms",
 ]
 
 
 INSTALLED_APPS += [
-    "users",
+    "administration",
     "menu",
     "dashboard",
 ]
+
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 SITE_ID = 1
 
@@ -152,7 +155,7 @@ STATICFILES_DIRS = [
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 STATIC_URL = "/static/"
 
-AUTH_USER_MODEL = "users.user"
+AUTH_USER_MODEL = "administration.user"
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_AUTHENTICATION_METHOD = "email"

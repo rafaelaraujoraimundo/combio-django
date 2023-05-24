@@ -42,7 +42,6 @@ class UserManager(BaseUserManager):
 
 class User(AbstractBaseUser, PermissionsMixin):
 
-
     email = models.EmailField(
         verbose_name="E-mail do usuário",
         max_length=254,
@@ -79,7 +78,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
     class Meta:
-        verbose_name="Usuário"
+        verbose_name = "Usuário"
         verbose_name_plural = "Usuários"
         db_table = "usuarios"
 

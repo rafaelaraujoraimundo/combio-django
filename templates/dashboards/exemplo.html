@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Meu Gráfico</title>
+    <link href="https://cdn.bokeh.org/bokeh/release/bokeh-2.3.3.min.css" rel="stylesheet" type="text/css">
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-2.3.3.min.js"></script>
+
+</head>
+<body>
+    <h1>Meu Gráfico</h1>
+    <div>
+        <!-- Div para renderizar o gráfico -->
+        {{ div|safe }}
+    </div>
+    <!-- Script para inicializar o gráfico -->
+    <script>
+        {{ script|safe }}
+    </script>
+</body>
+</html>
+

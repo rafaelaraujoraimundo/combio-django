@@ -35,7 +35,7 @@ urlpatterns = [
         name="index",
     ),
     path('accounts/', include('allauth.urls')),
-    path('users/', include('users.urls')),
+    path('administration/', include('administration.urls')),
     path('dashboards/', include('dashboard.urls')),
     path(
         "error/",

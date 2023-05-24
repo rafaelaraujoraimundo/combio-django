@@ -4,7 +4,11 @@
 {{ form.as_p}}
 <button>Submit</button>
 </form>
-{{ chart|safe }}
+<div>
+    <!-- Div para renderizar o gráfico -->
+    {{ div|safe }}
+</div>
+<!-- Script para inicializar o gráfico -->
 
-{{ chart2|safe}}
+    {{ script|safe }}
 {% endblock content %}

@@ -7,8 +7,10 @@ import pandas as pd
 import mysql.connector
 from menu.menu import GetGroup, GetMenu
 from django.contrib.auth.decorators import permission_required
-from django.urls import reverse_lazy
 from dashboard.models import BiChamadosServiceUp
+from bokeh.plotting import figure
+from bokeh.embed import components
+from bokeh.models import FactorRange
 
 
 @permission_required('global_permissions.combio_dashboard_ti', login_url='erro_page')
@@ -45,53 +47,30 @@ def dashboard_ti(request):
         fechados.append(chamado.fechados)
 
     # Criar um DataFrame com os dados
-    data = {
-        'Ano/Mês': ano_mes, 'Abertos': abertos, 'Fechados': fechados}
-    df = pd.DataFrame(data)
-    # Criar o gráfico de histograma
-    fig = go.Figure()
-    fig.add_trace(go.Bar(x=df['Ano/Mês'], y=df['Abertos'], name='Abertos'))
-    fig.add_trace(go.Bar(x=df['Ano/Mês'], y=df['Fechados'], name='Fechados'))
+    largura_barras = 0.35
 
-    # Personalizar o layout do gráfico
-    fig.update_layout(
-        title='Chamados por Mês',
-        xaxis_title='Ano / Mês',
-        yaxis_title='Quantidade de Chamados',
-        barmode='group',
-        bargap=0.4,  # gap between bars of adjacent location coordinates.
+    # Criação do gráfico de colunas com barras lado a lado usando o Bokeh
+    plot = figure(x_range=FactorRange(factors=ano_mes), title='Chamados Abertos e Fechados',
+                  x_axis_label='Período', y_axis_label='Quantidade')
+    plot.vbar(x=ano_mes, top=abertos, width=largura_barras,
+              color='blue', legend_label='Abertos')
+    plot.vbar(x=ano_mes, top=fechados, width=largura_barras,
+              color='red', legend_label='Fechados')
 
-    )
+    plot.legend.location = 'top_right'
+    plot.legend.title = 'Chamados por Mês'
 
-    # Converter o gráfico em HTML
-    chart = fig.to_html(full_html=False, default_height=500)
+    # Gera o código HTML e JavaScript para incorporar o gráfico no template
+    script, div = components(plot)
 
-    # Gerar o gráfico em formato HTML
-    chart = fig.to_html()
-
-    fig2 = go.Figure()
-    fig2.add_trace(go.Scatter(
-        x=df['Ano/Mês'], y=df['Abertos'], name='Abertos', mode='lines+markers', xperiodalignment="middle"))
-    fig2.add_trace(go.Scatter(
-        x=df['Ano/Mês'], y=df['Fechados'], name='Fechados', mode='lines+markers', xperiodalignment="middle"))
-
-    # Personalizar o layout do gráfico
-    fig2.update_layout(
-        title='Chamados por Mês',
-        xaxis_title='Ano / Mês',
-        yaxis_title='Quantidade de Chamados'
-    )
-
-    # Converter o gráfico em HTML
-    chart2 = fig2.to_html(full_html=False, default_height=500)
-
-    context = {'chart': chart, 'form': DateForm,
-               'chart2': chart2, 'groups': groups,
+    context = {'form': DateForm, 'script': script, 'div': div,
+               'groups': groups,
                'menus': menus, 'activegroup': activegroup,
                'activemenu': activemenu, 'user_groups': user_groups}
     return render(request, 'dashboards/ti.html', context)
 
 
+@permission_required('global_permissions.combio_dashboard_controladoria', login_url='erro_page')
 def dashboard_controladoria(request):
     activegroup = 'Dashboard'
     activemenu = 'dashboard_controladoria'
@@ -204,3 +183,21 @@ def dashboard_controladoria(request):
     return render(request, 'dashboards/controladoria.html', {'table1_html': table1_html, 'groups': groups,
                                                              'menus': menus, 'activegroup': activegroup,
                                                              'activemenu': activemenu, 'user_groups': user_groups})
+
+
+@permission_required('global_permissions.combio_dashboard_controladoria', login_url='erro_page')
+def exemplo(request):
+    # Dados para o gráfico
+    categorias = ['A', 'B', 'C', 'D']
+    valores = [10, 15, 7, 12]
+
+    # Criação do gráfico de barras usando o Bokeh
+    plot = figure(x_range=categorias, title='Gráfico de Barras',
+                  x_axis_label='Categorias', y_axis_label='Valores')
+    plot.vbar(x=categorias, top=valores, width=0.5)
+
+    # Gera o código HTML e JavaScript para incorporar o gráfico no template
+    script, div = components(plot)
+
+    # Renderiza o template com os componentes do gráfico
+    return render(request, 'dashboards/exemplo.html', {'script': script, 'div': div})

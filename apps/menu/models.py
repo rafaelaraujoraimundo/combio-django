@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import Group, Permission
-
+import json
 # Create your models here.
 
 
@@ -8,7 +8,7 @@ class GrupoMenu(models.Model):
     codigo = models.CharField(max_length=40, default='codigo default')
     NomeGrupo = models.CharField(max_length=40)
     icon_grupo = models.CharField(max_length=80)
-    permission = models.ForeignKey(Group, on_delete=models.PROTECT, null=True)
+    grupo = models.ForeignKey(Group, on_delete=models.PROTECT, null=True)
 
     class Meta:
         db_table = 'grupoMenu'
