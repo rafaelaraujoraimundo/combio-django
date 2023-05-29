@@ -1,21 +1,41 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Meu Gráfico</title>
-    <link href="https://cdn.bokeh.org/bokeh/release/bokeh-2.3.3.min.css" rel="stylesheet" type="text/css">
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-2.3.3.min.js"></script>
+{% extends 'menu/index.html'%}
+{% block content %}
 
-</head>
-<body>
-    <h1>Meu Gráfico</h1>
-    <div>
-        <!-- Div para renderizar o gráfico -->
+
+<div class="container">
+    <div class="row">
+    <div class="col-sm-6">
+        <h1>Gráfico de Linha</h1>
         {{ div|safe }}
     </div>
-    <!-- Script para inicializar o gráfico -->
-    <script>
+    <div class="col-sm-6">
+        <h1>Gráfico de Barras</h1>
+        {{ div2|safe }}
+    </div>
+    <div class="row">
+    <div class="col-sm-8">
+        <h1>Gráfico de Dispersão</h1>
+        {{ div3|safe }}
+    </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-6">
+        <h1>Gráfico de Barras Clusterizadas</h1>
+        {{ div4|safe }}
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <h1>Gráfico de Linhas Clusterizadas</h1>
+        {{ div5|safe }}
+    </div>
         {{ script|safe }}
-    </script>
-</body>
-</html>
-
+        {{ script2|safe }}
+        {{ script3|safe }}
+        {{ script4|safe }}
+        {{ script5|safe }}
+    </div>
+</div>
+</div>
+</div>
+</div>
+{% endblock content %}

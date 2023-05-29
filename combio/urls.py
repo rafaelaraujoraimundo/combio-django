@@ -18,6 +18,8 @@ from django.contrib import admin
 from django.urls import path, include
 from django.contrib.auth import views as auth_views
 from menu.views import index, erro_page
+from django.conf.urls.static import static
+from django.conf import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls, name="admin1"),
@@ -37,9 +39,12 @@ urlpatterns = [
     path('accounts/', include('allauth.urls')),
     path('administration/', include('administration.urls')),
     path('dashboards/', include('dashboard.urls')),
+    path('utils/', include('utils.urls')),
     path(
         "error/",
         erro_page,
         name="erro_page",
     ),
 ]
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

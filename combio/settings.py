@@ -57,6 +57,7 @@ INSTALLED_APPS += [
     "administration",
     "menu",
     "dashboard",
+    "utils",
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
@@ -175,3 +176,6 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 DATABASE_ROUTERS = ['routers.db_routers.dwcombioRouter']
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
