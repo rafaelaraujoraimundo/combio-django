@@ -8,33 +8,21 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import update_session_auth_hash
 from django.contrib import messages
 from django.forms import CheckboxSelectMultiple
-from menu.menu import GetGroup, GetMenu
 
 
 def user_list(request):
     # Permissões e Definições para o Menu
     activegroup = 'administration'
-    activemenu = 'administration_users'
-    groups = GetGroup()
-    menus = GetMenu()
-    user_groups = request.user.groups.all()
 
     users = User.objects.all()
-    context = {'users': users,  'groups': groups,
-               'menus': menus, 'activegroup': activegroup,
-               'activemenu': activemenu, 'user_groups': user_groups}
+    context = {'users': users,
+               'activegroup': activegroup}
     return render(request, 'users/user_list.html', context)
 
 
 def user_edit(request, user_id):
     activegroup = 'administration'
-    activemenu = 'administration_users'
-    groups = GetGroup()
-    menus = GetMenu()
-    user_groups = request.user.groups.all()
-    context = {'groups': groups,
-               'menus': menus, 'activegroup': activegroup,
-               'activemenu': activemenu, 'user_groups': user_groups}
+    context = {'activegroup': activegroup}
     user = get_object_or_404(User, pk=user_id)
     if request.method == 'POST':
         form = CustomUserChangeForm(request.POST, instance=user)
@@ -48,9 +36,9 @@ def user_edit(request, user_id):
                 user.user_permissions.add(perm)
             update_session_auth_hash(request, user)
             messages.success(request, 'Seu perfil foi atualizado com sucesso!')
-            return redirect('users')
+            return redirect('administration_users')
         else:
-            return redirect('users')
+            return redirect('administration_users')
     else:
         form = CustomUserChangeForm(instance=user)
         form.fields['groups'].widget = CheckboxSelectMultiple()

@@ -1,0 +1,17 @@
+{% extends 'menu/index.html'%}
+{% block content %}
+<div class="container">  
+<div>
+        {{ line_plot_div|safe }}
+    </div>
+    <div>
+        {{ bar_plot_div|safe }}
+    </div>
+    <div>
+        {{ clustered_line_plot_div|safe }}
+    </div>
+    <div>
+        {{ clustered_bar_plot_div|safe }}
+    </div>
+</div>
+    {% endblock content %}

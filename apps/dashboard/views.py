@@ -3,7 +3,6 @@ from dashboard.forms import DateForm
 import pandas as pd
 import plotly.graph_objects as go
 from datetime import datetime
-import pandas as pd
 import mysql.connector
 from menu.menu import GetGroup, GetMenu
 from django.contrib.auth.decorators import permission_required
@@ -12,15 +11,18 @@ from bokeh.plotting import figure
 from bokeh.embed import components
 from bokeh.models import FactorRange
 from bokeh.resources import CDN
+from plotly.offline import plot
+
+
+def view_padrao(request):
+    activegroup = 'Dashboard'
+    context = {'activegroup': activegroup}
+    return render(request, 'dashboards/ti.html', context)
 
 
 @permission_required('global_permissions.combio_dashboard_ti', login_url='erro_page')
 def dashboard_ti(request):
     activegroup = 'Dashboard'
-    activemenu = 'dashboard_ti'
-    groups = GetGroup()
-    menus = GetMenu()
-    user_groups = request.user.groups.all()
     chamadosti = BiChamadosServiceUp.objects.raw(""" SELECT 1 as ticket_id,
     DATE(DATE_SUB(created, INTERVAL (DAYOFMONTH(created) - 1) DAY)) AS ANO_MES,
             COUNT(created) abertos, count(closed) fechados
@@ -64,20 +66,14 @@ def dashboard_ti(request):
     # Gera o código HTML e JavaScript para incorporar o gráfico no template
     script, div = components(plot)
 
-    context = {'form': DateForm, 'script': script, 'div': div,
-               'groups': groups,
-               'menus': menus, 'activegroup': activegroup,
-               'activemenu': activemenu, 'user_groups': user_groups}
+    context = {'form': DateForm, 'script': script,
+               'div': div, 'activegroup': activegroup}
     return render(request, 'dashboards/ti.html', context)
 
 
 @permission_required('global_permissions.combio_dashboard_controladoria', login_url='erro_page')
 def dashboard_controladoria(request):
     activegroup = 'Dashboard'
-    activemenu = 'dashboard_controladoria'
-    groups = GetGroup()
-    menus = GetMenu()
-    user_groups = request.user.groups.all()
     # Conectar ao banco de dados
     con = mysql.connector.connect(
         host='172.16.0.15', database='dw_combio', user='usr_combio',
@@ -176,18 +172,19 @@ def dashboard_controladoria(request):
         table2_html = fig2.to_html(full_html=False)
 
         # Renderizar o template com as tabelas em HTML
-        return render(request, 'dashboards/controladoria.html', {'table1_html': table1_html, 'table2_html': table2_html, 'groups': groups,
-                                                                 'menus': menus, 'activegroup': activegroup,
-                                                                 'activemenu': activemenu, 'user_groups': user_groups})
+        return render(request, 'dashboards/controladoria.html', {'table1_html': table1_html, 'table2_html': table2_html})
 
     # Renderizar o template inicial
-    return render(request, 'dashboards/controladoria.html', {'table1_html': table1_html, 'groups': groups,
-                                                             'menus': menus, 'activegroup': activegroup,
-                                                             'activemenu': activemenu, 'user_groups': user_groups})
+    return render(request, 'dashboards/controladoria.html', {'table1_html': table1_html, 'activegroup': activegroup})
 
 
 @permission_required('global_permissions.combio_dashboard_controladoria', login_url='erro_page')
 def exemplo(request):
+    activegroup = 'Dashboard'
+    activemenu = 'dashboard_exemplo'
+    groups = GetGroup()
+    menus = GetMenu()
+    user_groups = request.user.groups.all()
     # Dados para os gráficos
     x = [1, 2, 3, 4, 5]
     y = [6, 7, 2, 4, 5]
@@ -208,7 +205,7 @@ def exemplo(request):
     scatter_plot = figure(title="Gráfico de Dispersão",
                           x_axis_label='X', y_axis_label='Y')
     scatter_plot.circle(x, y, size=10, color='navy', alpha=0.5)
- # Criação do gráfico de barras clusterizadas
+    # Criação do gráfico de barras clusterizadas
     clustered_bar_plot = figure(title="Gráfico de Barras Clusterizadas", x_range=[
                                 'Grupo 1', 'Grupo 2', 'Grupo 3'], x_axis_label='Grupos', y_axis_label='Valores')
     clustered_bar_plot.vbar(x=['Grupo 1', 'Grupo 2', 'Grupo 3'], top=[
@@ -224,9 +221,9 @@ def exemplo(request):
     clustered_line_plot.line(
         x, y, legend_label='Linha 1', line_width=2, color='red')
     clustered_line_plot.line(
-        x, [5, 4, 3, 2, 1], legend_label='Linha 2', line_width=2, color='blue')
+        x, [5, 2, 3, 4, 1], legend_label='Linha 2', line_width=2, color='blue')
     clustered_line_plot.line(
-        x, [2, 2, 2, 2, 2], legend_label='Linha 3', line_width=2, color='green')
+        x, [2, 5, 1, 4, 2], legend_label='Linha 3', line_width=2, color='green')
 
     # Renderiza os gráficos para HTML
     script, div = components(line_plot, CDN)
@@ -236,4 +233,100 @@ def exemplo(request):
     script5, div5 = components(clustered_line_plot, CDN)
     # Renderiza os gráficos para HTML
 
-    return render(request, 'dashboards/exemplo.html', {'script': script, 'div': div, 'script2': script2, 'div2': div2, 'script3': script3, 'div3': div3, 'script4': script4, 'div4': div4, 'script5': script5, 'div5': div5})
+    return render(request, 'dashboards/exemplo.html', {'activegroup': activegroup, 'script': script, 'div': div, 'script2': script2, 'div2': div2, 'script3': script3, 'div3': div3, 'script4': script4, 'div4': div4, 'script5': script5, 'div5': div5})
+
+
+def exemplo2(request):
+    activegroup = 'Dashboard'
+    activemenu = 'dashboard_exemplo2'
+    groups = GetGroup()
+    menus = GetMenu()
+    user_groups = request.user.groups.all()
+    # Dados para os gráficos
+    x_data = [1, 2, 3, 4, 5]
+    y_data = [2, 4, 1, 5, 3]
+    categories = ['A', 'B', 'C', 'D']
+    values1 = [3, 2, 4, 6]
+    values2 = [5, 1, 2, 3]
+
+    # Gráfico de Linhas
+    line_trace = go.Scatter(
+        x=x_data,
+        y=y_data,
+        mode='lines',
+        name='Gráfico de Linhas'
+    )
+    line_layout = go.Layout(
+        title='Gráfico de Linhas',
+        xaxis=dict(title='Eixo X'),
+        yaxis=dict(title='Eixo Y')
+    )
+    line_fig = go.Figure(data=[line_trace], layout=line_layout)
+    line_plot_div = plot(line_fig, output_type='div')
+
+    # Gráfico de Barras
+    bar_trace = go.Bar(
+        x=categories,
+        y=values1,
+        name='Gráfico de Barras'
+    )
+    bar_layout = go.Layout(
+        title='Gráfico de Barras',
+        xaxis=dict(title='Categorias'),
+        yaxis=dict(title='Valores')
+    )
+    bar_fig = go.Figure(data=[bar_trace], layout=bar_layout)
+    bar_plot_div = plot(bar_fig, output_type='div')
+
+    # Gráfico de Linhas Clusterizadas
+    clustered_line_trace1 = go.Scatter(
+        x=x_data,
+        y=y_data,
+        mode='lines',
+        name='Linha 1'
+    )
+    clustered_line_trace2 = go.Scatter(
+        x=x_data,
+        y=[y+1 for y in y_data],
+        mode='lines',
+        name='Linha 2'
+    )
+    clustered_line_data = [clustered_line_trace1, clustered_line_trace2]
+    clustered_line_layout = go.Layout(
+        title='Gráfico de Linhas Clusterizadas',
+        xaxis=dict(title='Eixo X'),
+        yaxis=dict(title='Eixo Y')
+    )
+    clustered_line_fig = go.Figure(
+        data=clustered_line_data, layout=clustered_line_layout)
+    clustered_line_plot_div = plot(clustered_line_fig, output_type='div')
+
+    # Gráfico de Barras Clusterizadas
+    clustered_bar_trace1 = go.Bar(
+        x=categories,
+        y=values1,
+        name='Barra 1'
+    )
+    clustered_bar_trace2 = go.Bar(
+        x=categories,
+        y=values2,
+        name='Barra 2'
+    )
+    clustered_bar_data = [clustered_bar_trace1, clustered_bar_trace2]
+    clustered_bar_layout = go.Layout(
+        title='Gráfico de Barras Clusterizadas',
+        xaxis=dict(title='Categorias'),
+        yaxis=dict(title='Valores')
+    )
+    clustered_bar_fig = go.Figure(
+        data=clustered_bar_data, layout=clustered_bar_layout)
+    clustered_bar_plot_div = plot(clustered_bar_fig, output_type='div')
+
+    return render(request, 'dashboards/exemplo2.html', {'groups': groups,
+                                                        'menus': menus, 'activegroup': activegroup,
+                                                        'activemenu': activemenu, 'user_groups': user_groups,
+                                                        'line_plot_div': line_plot_div,
+                                                        'bar_plot_div': bar_plot_div,
+                                                        'clustered_line_plot_div': clustered_line_plot_div,
+                                                        'clustered_bar_plot_div': clustered_bar_plot_div
+                                                        })

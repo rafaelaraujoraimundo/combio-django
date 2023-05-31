@@ -4,5 +4,5 @@ from django.contrib.auth import views as auth_views
 from utils.views import processar_arquivo
 
 urlpatterns = [
-    path('importproducts', processar_arquivo, name="importProducts"),
+    path('importproducts', processar_arquivo, name="utils_importproduct"),
 ]

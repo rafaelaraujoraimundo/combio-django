@@ -2,9 +2,11 @@ from django import forms
 from django.shortcuts import render
 from .models import Arquivo
 from utils.forms import UploadArquivoForm
+from menu.menu import GetGroup, GetMenu
 
 
 def processar_arquivo(request):
+    activegroup = 'utils'
     arquivos = Arquivo.objects.all()
     if request.method == 'POST':
         form = UploadArquivoForm(request.POST, request.FILES)
@@ -23,4 +25,4 @@ def processar_arquivo(request):
     else:
         form = UploadArquivoForm()
 
-    return render(request, 'utils/upload_arquivo.html', {'form': form, 'arquivos': arquivos})
+    return render(request, 'utils/upload_arquivo.html', {'form': form, 'arquivos': arquivos, 'activegroup': activegroup})
