@@ -2,16 +2,19 @@ from django.shortcuts import render
 from dashboard.forms import DateForm
 import pandas as pd
 import plotly.graph_objects as go
+import plotly.express as px
 from datetime import datetime
 import mysql.connector
-from menu.menu import GetGroup, GetMenu
 from django.contrib.auth.decorators import permission_required
 from dashboard.models import BiChamadosServiceUp
 from bokeh.plotting import figure
 from bokeh.embed import components
 from bokeh.models import FactorRange
-from bokeh.resources import CDN
 from plotly.offline import plot
+from bokeh.transform import dodge
+from bokeh.models import ColumnDataSource
+from bokeh.transform import factor_cmap
+from chartkick.django import ColumnChart
 
 
 def view_padrao(request):
@@ -22,6 +25,164 @@ def view_padrao(request):
 
 @permission_required('global_permissions.combio_dashboard_ti', login_url='erro_page')
 def dashboard_ti(request):
+    activegroup = 'Dashboard'
+    start = request.GET.get('start')
+    end = request.GET.get('end')
+    chamadosti = BiChamadosServiceUp.objects.raw(""" SELECT 1 as ticket_id, queue_name fila,
+    DATE(DATE_SUB(created, INTERVAL (DAYOFMONTH(created) - 1) DAY)) AS ANO_MES,
+            COUNT(created) abertos, count(closed) fechados
+    FROM bi_chamados_service_up
+    group by CONCAT(SUBSTR(created, 1, 4), '-', SUBSTR(created, 6, 2), queue_name )""")
+
+    # Criar DataFrame
+
+    if start:
+        start = datetime.strptime(start, '%Y-%m-%d').date()
+    if end:
+        end = datetime.strptime(end, '%Y-%m-%d').date()
+
+    if start:
+        chamadosti = [c for c in chamadosti if c.ANO_MES >= start]
+    if end:
+        chamadosti = [c for c in chamadosti if c.ANO_MES <= end]
+
+    ano_mes = []
+    fila = []
+    abertos = []
+    fechados = []
+
+    for chamado in chamadosti:
+        # Acessar os atributos do objeto e adicionar os valores às listas
+        ano_mes.append(chamado.ANO_MES.strftime('%Y-%m'))
+        fila.append(chamado.fila)
+        abertos.append(chamado.abertos)
+        fechados.append(chamado.fechados)
+    data = {
+        'ANO_MES': ano_mes,
+        'fila': fila,
+        'fechados': fechados,
+    }
+    df = pd.DataFrame(data)
+    ANO_MES = ('2023-04', '2023-06', '2023-05', '2023-07', '2023-08')
+    Abertos = (3, 107, 22, 147, 67)
+    Fechados = (95, 18, 99, 19, 135)
+    filas = ['TI::N2::Fluig', 'TI::N2::Diversos', 'TI::N2::Hardware', 'TI::N2::Software',
+             'TI::N3::Projetos::Melhorias']
+
+    # Dashboard Aninhado e agrupado
+    palette = ["#c9d9d3", "#718dbf", "#e84d60"]
+
+    x = [(str(ano_mes), fila)
+         for ano_mes, fila in zip(df['ANO_MES'], df['fila'])]
+    counts = sum(zip(df['fechados']), ())
+
+    source = ColumnDataSource(data=dict(x=x, counts=counts))
+
+    p = figure(x_range=FactorRange(*x), height=600, title="Chamados fechados por Fila",
+               toolbar_location=None, tools="")
+
+    p.vbar(x='x', top='counts', width=0.9, source=source, line_color="white",
+           fill_color=factor_cmap('x', palette=palette, factors=[str(fila) for fila in df['fila']], start=1, end=2))
+
+    p.y_range.start = 0
+    p.x_range.range_padding = 0.1
+    p.xaxis.major_label_orientation = -45
+    p.xgrid.grid_line_color = None
+
+    p1 = figure(x_range=ANO_MES, height=350,
+                title="Bar Chart", toolbar_location=None, tools="")
+    p1.vbar(x=ANO_MES, top=Abertos, width=0.9,
+            color='blue', legend_label='Abertos')
+    p1.vbar(x=ANO_MES, top=Fechados, width=0.9,
+            color='red', legend_label='Fechados')
+
+    # Bar Chart Nested
+
+    p2 = figure(x_range=ANO_MES, height=350,
+                title="Bar Chart Nested", toolbar_location=None, tools="")
+    source = ColumnDataSource(
+        data={'ANO_MES': ANO_MES, 'Filas': filas, 'Abertos': Abertos, 'Fechados': Fechados})
+    p2.vbar(x='ANO_MES', top='Abertos', width=0.9, fill_alpha=0.5,
+            color='blue', legend_field='Filas', source=source)
+    p2.vbar(x='ANO_MES', top='Fechados', width=0.9, fill_alpha=0.5,
+            color='blue', legend_field='Filas', source=source)
+    # Bar Chart Stacking and Grouping
+    p3 = figure(x_range=ANO_MES, height=350, title="Bar Chart Stacking and Grouping",
+                toolbar_location=None, tools="")
+    p3.vbar_stack(['Abertos', 'Fechados'], x='ANO_MES', width=0.9, color=['blue', 'red'],
+                  legend_label=['Abertos', 'Fechados'], source=ColumnDataSource(data={'ANO_MES': ANO_MES, 'Abertos': Abertos, 'Fechados': Fechados}))
+
+    # Line Chart
+    p4 = figure(x_range=ANO_MES, height=350,
+                title="Line Chart", toolbar_location=None, tools="")
+    p4.line(ANO_MES, Abertos, line_width=2, color='blue')
+
+    # Multiple Lines
+    p5 = figure(x_range=ANO_MES, height=350,
+                title="Multiple Lines", toolbar_location=None, tools="")
+    p5.line(ANO_MES, Abertos, line_width=2,
+            color='blue', legend_label='Abertos')
+    p5.line(ANO_MES, Fechados, line_width=2,
+            color='red', legend_label='Fechados')
+
+    # Stacked Lines
+    p6 = figure(x_range=ANO_MES, height=350,
+                title="Stacked Lines", toolbar_location=None, tools="")
+    p6.line(ANO_MES, Abertos, line_width=2,
+            color='blue', legend_label='Abertos')
+    p6.line(ANO_MES, [a + f for a, f in zip(Abertos, Fechados)],
+            line_width=2, color='red', legend_label='Total')
+
+    # Combining with Markers
+    p7 = figure(x_range=ANO_MES, height=350,
+                title="Combining with Markers", toolbar_location=None, tools="")
+    p7.line(ANO_MES, Abertos, line_width=2,
+            color='blue', legend_label='Abertos')
+    p7.circle(ANO_MES, Abertos, size=8, color='blue', fill_color='white')
+
+    # Scatter Markers
+    p8 = figure(x_range=ANO_MES, height=350,
+                title="Scatter Markers", toolbar_location=None, tools="")
+    p8.scatter(ANO_MES, Abertos, size=8, color='blue')
+
+    # Renderizar os gráficos
+    script1, div1 = components(p1)
+    script2, div2 = components(p2)
+    script3, div3 = components(p3)
+    script4, div4 = components(p4)
+    script5, div5 = components(p5)
+    script6, div6 = components(p6)
+    script7, div7 = components(p7)
+    script8, div8 = components(p8)
+    # Gerar o HTML e o script do gráfico
+    script, div = components(p)
+
+    context = {
+        'script': script,
+        'div': div,
+        'script1': script1,
+        'div1': div1,
+        'script2': script2,
+        'div2': div2,
+        'script3': script3,
+        'div3': div3,
+        'script4': script4,
+        'div4': div4,
+        'script5': script5,
+        'div5': div5,
+        'script6': script6,
+        'div6': div6,
+        'script7': script7,
+        'div7': div7,
+        'script8': script8,
+        'div8': div8,
+        'activegroup': activegroup
+    }
+    return render(request, 'dashboards/ti.html', context)
+
+
+@permission_required('global_permissions.combio_dashboard_ti', login_url='erro_page')
+def dashboard_ti2(request):
     activegroup = 'Dashboard'
     chamadosti = BiChamadosServiceUp.objects.raw(""" SELECT 1 as ticket_id,
     DATE(DATE_SUB(created, INTERVAL (DAYOFMONTH(created) - 1) DAY)) AS ANO_MES,
@@ -49,25 +210,32 @@ def dashboard_ti(request):
         abertos.append(chamado.abertos)
         fechados.append(chamado.fechados)
 
-    # Criar um DataFrame com os dados
-    largura_barras = 0.35
+    # Criando o plot2 do Bokeh
+    plot2 = figure(title="Dashboard de Abertos e Fechados", x_axis_label='Data', y_axis_label='Quantidade',
+                   x_range=ano_mes, width=600, height=400)
 
-    # Criação do gráfico de colunas com barras lado a lado usando o Bokeh
-    plot = figure(x_range=FactorRange(factors=ano_mes), title='Chamados Abertos e Fechados',
-                  x_axis_label='Período', y_axis_label='Quantidade')
-    plot.vbar(x=ano_mes, top=abertos, width=largura_barras,
-              color='blue', legend_label='Abertos')
-    plot.vbar(x=ano_mes, top=fechados, width=largura_barras,
-              color='red', legend_label='Fechados')
+    # Criando uma fonte de dados do Bokeh
+    source = {
+        'data2': ano_mes,
+        'abertos2': abertos,
+        'fechados2': fechados,
+    }
 
-    plot.legend.location = 'top_right'
-    plot.legend.title = 'Chamados por Mês'
+    # Adicionando as colunas "Abertos" e "Fechados" ao gráfico
+    plot2.vbar(x=dodge('data2', -0.15, range=plot2.x_range), top='abertos2', width=0.25, color='blue', legend_label='Abertos',
+               source=source)
+    plot2.vbar(x=dodge('data2', 0.15, range=plot2.x_range), top='fechados2', width=0.25, color='red', legend_label='Fechados',
+               source=source)
 
-    # Gera o código HTML e JavaScript para incorporar o gráfico no template
-    script, div = components(plot)
+    # Ajustando o estilo do plot2
+    plot2.legend.location = "top_right"
+    plot2.legend.click_policy = "hide"
 
-    context = {'form': DateForm, 'script': script,
-               'div': div, 'activegroup': activegroup}
+    # Convertendo o plot2 em HTML e JavaScript usando o método components do Bokeh
+    script2, div2 = components(plot2)
+
+    context = {'form': DateForm, 'script2': script2,
+               'div2': div2, 'activegroup': activegroup}
     return render(request, 'dashboards/ti.html', context)
 
 
@@ -181,152 +349,15 @@ def dashboard_controladoria(request):
 @permission_required('global_permissions.combio_dashboard_controladoria', login_url='erro_page')
 def exemplo(request):
     activegroup = 'Dashboard'
-    activemenu = 'dashboard_exemplo'
-    groups = GetGroup()
-    menus = GetMenu()
-    user_groups = request.user.groups.all()
-    # Dados para os gráficos
-    x = [1, 2, 3, 4, 5]
-    y = [6, 7, 2, 4, 5]
+    ANO_MES = ["2023-04", "2023-06", "2023-05", "2023-07", "2023-08"]
+    Abertos = [3, 107, 22, 147, 67]
+    Fechados = [95, 18, 99, 19, 135]
+    data = [{'name': 'Workout', 'data': {'2021-01-01': 3, '2021-01-02': 4}},
+            {'name': 'Call parents', 'data': {'2021-01-01': 5, '2021-01-02': 3}}]
+    chart_teste = ColumnChart(
+        data, xtitle='Time', ytitle='Population', download=True)
+    context = {
+        'activegroup': activegroup, 'Abertos': Abertos, 'Fechados': Fechados, 'ANO_MES': ANO_MES, 'chart_teste': chart_teste
+    }
 
-    # Criação dos gráficos
-    line_plot = figure(title="Gráfico de Linha",
-                       x_axis_label='X', y_axis_label='Y')
-    line_plot.line(x, y, legend_label='Linha', line_width=2)
-
-    bar_plot = figure(title="Gráfico de Barras",
-                      x_axis_label='Categoria', y_axis_label='Valores')
-    bar_plot.vbar(x=['A', 'B', 'C', 'D'], top=[4, 6, 8, 2], width=0.5)
-
-    bar_plot = figure(title="Gráfico de Barras",
-                      x_axis_label='Categoria', y_axis_label='Valores')
-    bar_plot.vbar(x=x, top=y, width=0.5)
-
-    scatter_plot = figure(title="Gráfico de Dispersão",
-                          x_axis_label='X', y_axis_label='Y')
-    scatter_plot.circle(x, y, size=10, color='navy', alpha=0.5)
-    # Criação do gráfico de barras clusterizadas
-    clustered_bar_plot = figure(title="Gráfico de Barras Clusterizadas", x_range=[
-                                'Grupo 1', 'Grupo 2', 'Grupo 3'], x_axis_label='Grupos', y_axis_label='Valores')
-    clustered_bar_plot.vbar(x=['Grupo 1', 'Grupo 2', 'Grupo 3'], top=[
-                            4, 5, 2], width=0.2, color='red', legend_label='Série 1')
-    clustered_bar_plot.vbar(x=['Grupo 1', 'Grupo 2', 'Grupo 3'], top=[
-                            2, 3, 4], width=0.2, color='blue', legend_label='Série 2')
-    clustered_bar_plot.vbar(x=['Grupo 1', 'Grupo 2', 'Grupo 3'], top=[
-                            1, 6, 5], width=0.2, color='green', legend_label='Série 3')
-
-    # Criação do gráfico de linhas clusterizadas
-    clustered_line_plot = figure(
-        title="Gráfico de Linhas Clusterizadas", x_axis_label='X', y_axis_label='Y')
-    clustered_line_plot.line(
-        x, y, legend_label='Linha 1', line_width=2, color='red')
-    clustered_line_plot.line(
-        x, [5, 2, 3, 4, 1], legend_label='Linha 2', line_width=2, color='blue')
-    clustered_line_plot.line(
-        x, [2, 5, 1, 4, 2], legend_label='Linha 3', line_width=2, color='green')
-
-    # Renderiza os gráficos para HTML
-    script, div = components(line_plot, CDN)
-    script2, div2 = components(bar_plot, CDN)
-    script3, div3 = components(scatter_plot, CDN)
-    script4, div4 = components(clustered_bar_plot, CDN)
-    script5, div5 = components(clustered_line_plot, CDN)
-    # Renderiza os gráficos para HTML
-
-    return render(request, 'dashboards/exemplo.html', {'activegroup': activegroup, 'script': script, 'div': div, 'script2': script2, 'div2': div2, 'script3': script3, 'div3': div3, 'script4': script4, 'div4': div4, 'script5': script5, 'div5': div5})
-
-
-def exemplo2(request):
-    activegroup = 'Dashboard'
-    activemenu = 'dashboard_exemplo2'
-    groups = GetGroup()
-    menus = GetMenu()
-    user_groups = request.user.groups.all()
-    # Dados para os gráficos
-    x_data = [1, 2, 3, 4, 5]
-    y_data = [2, 4, 1, 5, 3]
-    categories = ['A', 'B', 'C', 'D']
-    values1 = [3, 2, 4, 6]
-    values2 = [5, 1, 2, 3]
-
-    # Gráfico de Linhas
-    line_trace = go.Scatter(
-        x=x_data,
-        y=y_data,
-        mode='lines',
-        name='Gráfico de Linhas'
-    )
-    line_layout = go.Layout(
-        title='Gráfico de Linhas',
-        xaxis=dict(title='Eixo X'),
-        yaxis=dict(title='Eixo Y')
-    )
-    line_fig = go.Figure(data=[line_trace], layout=line_layout)
-    line_plot_div = plot(line_fig, output_type='div')
-
-    # Gráfico de Barras
-    bar_trace = go.Bar(
-        x=categories,
-        y=values1,
-        name='Gráfico de Barras'
-    )
-    bar_layout = go.Layout(
-        title='Gráfico de Barras',
-        xaxis=dict(title='Categorias'),
-        yaxis=dict(title='Valores')
-    )
-    bar_fig = go.Figure(data=[bar_trace], layout=bar_layout)
-    bar_plot_div = plot(bar_fig, output_type='div')
-
-    # Gráfico de Linhas Clusterizadas
-    clustered_line_trace1 = go.Scatter(
-        x=x_data,
-        y=y_data,
-        mode='lines',
-        name='Linha 1'
-    )
-    clustered_line_trace2 = go.Scatter(
-        x=x_data,
-        y=[y+1 for y in y_data],
-        mode='lines',
-        name='Linha 2'
-    )
-    clustered_line_data = [clustered_line_trace1, clustered_line_trace2]
-    clustered_line_layout = go.Layout(
-        title='Gráfico de Linhas Clusterizadas',
-        xaxis=dict(title='Eixo X'),
-        yaxis=dict(title='Eixo Y')
-    )
-    clustered_line_fig = go.Figure(
-        data=clustered_line_data, layout=clustered_line_layout)
-    clustered_line_plot_div = plot(clustered_line_fig, output_type='div')
-
-    # Gráfico de Barras Clusterizadas
-    clustered_bar_trace1 = go.Bar(
-        x=categories,
-        y=values1,
-        name='Barra 1'
-    )
-    clustered_bar_trace2 = go.Bar(
-        x=categories,
-        y=values2,
-        name='Barra 2'
-    )
-    clustered_bar_data = [clustered_bar_trace1, clustered_bar_trace2]
-    clustered_bar_layout = go.Layout(
-        title='Gráfico de Barras Clusterizadas',
-        xaxis=dict(title='Categorias'),
-        yaxis=dict(title='Valores')
-    )
-    clustered_bar_fig = go.Figure(
-        data=clustered_bar_data, layout=clustered_bar_layout)
-    clustered_bar_plot_div = plot(clustered_bar_fig, output_type='div')
-
-    return render(request, 'dashboards/exemplo2.html', {'groups': groups,
-                                                        'menus': menus, 'activegroup': activegroup,
-                                                        'activemenu': activemenu, 'user_groups': user_groups,
-                                                        'line_plot_div': line_plot_div,
-                                                        'bar_plot_div': bar_plot_div,
-                                                        'clustered_line_plot_div': clustered_line_plot_div,
-                                                        'clustered_bar_plot_div': clustered_bar_plot_div
-                                                        })
+    return render(request, 'dashboards/exemplo.html', context)

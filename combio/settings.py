@@ -50,6 +50,8 @@ INSTALLED_APPS += [
     "allauth.socialaccount.providers.google",
     "global_permissions",
     "crispy_forms",
+    "chartkick.django",
+    "chartjs",
 ]
 
 

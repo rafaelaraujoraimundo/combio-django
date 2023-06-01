@@ -1,15 +1,47 @@
 {% extends 'menu/index.html'%}
 {% block content %}
-<form method="GET" action={% url 'dashboard_ti' %}>
-{{ form.as_p}}
-<button>Submit</button>
-</form>
-<div>
-    <!-- Div para renderizar o gráfico -->
-    {{ div|safe }}
-</div>
-<!-- Script para inicializar o gráfico -->
+{% load static %}
 
-    {{ script|safe }}
+<script src="{% static 'chartkick/Chart.bundle.js' %}"></script>
+<script src="{% static 'chartkick/chartkick.js' %}"></script>
+    
+<h2>Agrupado</h2>
+<div>
+{{ div|safe }}
+{{ script|safe }}
+</div>
+<h2>Bar Chart</h2>
+{{ div1|safe }}
+{{ script1|safe }}
+
+<h2>Bar Chart Nested</h2>
+{{ div2|safe }}
+{{ script2|safe }}
+
+<h2>Bar Chart Stacking and Grouping</h2>
+{{ div3|safe }}
+{{ script3|safe }}
+
+<h2>Line Chart</h2>
+{{ div4|safe }}
+{{ script4|safe }}
+
+<h2>Multiple Lines</h2>
+{{ div5|safe }}
+{{ script5|safe }}
+
+<h2>Stacked Lines</h2>
+{{ div6|safe }}
+{{ script6|safe }}
+
+<h2>Combining with Markers</h2>
+{{ div7|safe }}
+{{ script7|safe }}
+
+<h2>Scatter Markers</h2>
+{{ div8|safe }}
+{{ script8|safe }}
+
+<!-- Script para inicializar o gráfico -->
 
     {% endblock content %}

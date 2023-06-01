@@ -13,11 +13,14 @@
       <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
       <!-- Typography CSS -->
       <link rel="stylesheet" href="{% static 'css/typography.css' %}">
+      <script src={% static "js/chart.js" %}></script>
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bokeh/1.2.0/bokeh.css">
       <!-- Style CSS -->
       <link rel="stylesheet" href="{% static 'css/style.css' %}">
-      <link rel="stylesheet" href="{% static 'js/bokeh-3.1.1.min.js' %}">
+     
       <!-- Responsive CSS -->
+      <script src={% static "js/bokeh-3.1.1.min.js" %}></script>
+   
       <link rel="stylesheet" href="{% static 'css/responsive.css' %}">
    </head>
    <body class="sidebar-main-active right-column-fixed">
@@ -99,6 +102,9 @@
       <script src={% static "js/custom.js" %}></script>
       <script src={% static "js/bokeh-3.1.1.min.js" %}></script>
       <script src={% static "js/plotly-latest.min.js" %}></script>
+      <script src="{% static "chartkick/Chart.bundle.js" %}"></script>
+      <script src="{% static "chartkick/chartkick.js" %}"></script>
+      
       
    </body>
 </html>
