@@ -1,347 +1,39 @@
 {% extends 'menu/index.html'%}
 {% block content %}
-
-<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-
-<div id="chart"></div>
-
-<script>
-  const labels = ['jan','fev','mar','br','m'];
-  const data = {
-    labels: labels,
-    series: [
-      {
-        name: 'Dataset 1',
-        data: [1, 3, 4, 5, 6],
-        color: 'red'
-      },
-      {
-        name: 'Dataset 2',
-        data: [5, 3, 4, 5, 6],
-        color: 'blue'
-      },
-      {
-        name: 'Dataset 3',
-        data: [5, 3, 4, 5, 6],
-        color: 'green'
-      }
-    ]
-  };
-
-  var options = {
-    chart: {
-      type: 'bar',
-      stacked: true,
-      height: 350
-    },
-    plotOptions: {
-      bar: {
-        horizontal: false
-      }
-    },
-    series: data.series.map((dataset) => ({
-      name: dataset.name,
-      data: dataset.data
-    })),
-    xaxis: {
-      categories: labels
-    },
-    legend: {
-      position: 'top'
-    },
-    fill: {
-      opacity: 1
-    },
-    responsive: [{
-      breakpoint: 480,
-      options: {
-        legend: {
-          position: 'bottom'
-        }
-      }
-    }]
-  };
-
-  var chart = new ApexCharts(document.querySelector("#chart"), options);
-  chart.render();
-</script>
-<div class="container">  
-    <div id="stackedBarChart"></div>
-    <div id="verticalBarChart"></div>
-    <div id="horizontalBarChart"></div>
-    <div id="interpolationModes"></div>
-    <div id="lineChart"></div>
-    <div id="multiAxisLineChart"></div>
-    <div id="pointStyling"></div>
-    <div id="lineStylingFilled"></div>
-    <div id="lineStylingUnfilled"></div>
-  
-    <script>
-      const ANO_MES = ['2023-04', '2023-06', '2023-05', '2023-07', '2023-08'];
-      const Abertos = [3, 107, 22, 147, 67];
-      const Fechados = [95, 18, 99, 19, 135];
-  
-      // Stacked Bar Chart
-      var stackedBarOptions = {
-        chart: {
-          type: 'bar',
-          stacked: true,
-          height: 350
-        },
-        series: [
-          {
-            name: 'Abertos',
-            data: Abertos
-          },
-          {
-            name: 'Fechados',
-            data: Fechados
-          }
-        ],
-        xaxis: {
-          categories: ANO_MES
-        }
-      };
-  
-      var stackedBarChart = new ApexCharts(document.querySelector('#stackedBarChart'), stackedBarOptions);
-      stackedBarChart.render();
-  
-      // Vertical Bar Chart
-      var verticalBarOptions = {
-        chart: {
-          type: 'bar',
-          stacked: false,
-          height: 350
-        },
-        series: [
-          {
-            name: 'Abertos',
-            data: Abertos
-          },
-          {
-            name: 'Fechados',
-            data: Fechados
-          }
-        ],
-        xaxis: {
-          categories: ANO_MES
-        }
-      };
-  
-      var verticalBarChart = new ApexCharts(document.querySelector('#verticalBarChart'), verticalBarOptions);
-      verticalBarChart.render();
-  
-      // Horizontal Bar Chart
-      var horizontalBarOptions = {
-        chart: {
-          type: 'bar',
-          stacked: false,
-          height: 350
-        },
-        series: [
-          {
-            name: 'Abertos',
-            data: Abertos
-          },
-          {
-            name: 'Fechados',
-            data: Fechados
-          }
-        ],
-        yaxis: {
-          reversed: true
-        },
-        xaxis: {
-          categories: ANO_MES
-        }
-      };
-  
-      var horizontalBarChart = new ApexCharts(document.querySelector('#horizontalBarChart'), horizontalBarOptions);
-      horizontalBarChart.render();
-  
-      // Interpolation Modes
-      var interpolationOptions = {
-        chart: {
-          type: 'line',
-          height: 350
-        },
-        series: [
-          {
-            name: 'Abertos',
-            data: Abertos
-          },
-          {
-            name: 'Fechados',
-            data: Fechados
-          }
-        ],
-        xaxis: {
-          categories: ANO_MES
-        },
-        stroke: {
-          curve: 'smooth'
-        }
-      };
-  
-      var interpolationChart = new ApexCharts(document.querySelector('#interpolationModes'), interpolationOptions);
-      interpolationChart.render();
-  
-      // Line Chart
-      var lineOptions = {
-        chart: {
-          type: 'line',
-          height: 350
-        },
-        series: [
-          {
-            name: 'Abertos',
-            data: Abertos
-          },
-          {
-            name: 'Fechados',
-            data: Fechados
-          }
-        ],
-        xaxis: {
-          categories: ANO_MES
-        },
-        stroke: {
-          curve: 'straight'
-        }
-      };
-  
-      var lineChart = new ApexCharts(document.querySelector('#lineChart'), lineOptions);
-      lineChart.render();
-  
-      // Multi Axis Line Chart
-      var multiAxisLineOptions = {
-        chart: {
-          type: 'line',
-          height: 350
-        },
-        series: [
-          {
-            name: 'Abertos',
-            data: Abertos
-          },
-          {
-            name: 'Fechados',
-            data: Fechados
-          }
-        ],
-        xaxis: {
-          categories: ANO_MES
-        },
-        yaxis: [
-          {
-            title: {
-              text: 'Abertos'
-            }
-          },
-          {
-            opposite: true,
-            title: {
-              text: 'Fechados'
-            }
-          }
-        ]
-      };
-  
-      var multiAxisLineChart = new ApexCharts(document.querySelector('#multiAxisLineChart'), multiAxisLineOptions);
-      multiAxisLineChart.render();
-  
-      // Point Styling
-      var pointStylingOptions = {
-        chart: {
-          type: 'line',
-          height: 350
-        },
-        series: [
-          {
-            name: 'Abertos',
-            data: Abertos
-          },
-          {
-            name: 'Fechados',
-            data: Fechados
-          }
-        ],
-        xaxis: {
-          categories: ANO_MES
-        },
-        markers: {
-          size: 5
-        }
-      };
-  
-      var pointStylingChart = new ApexCharts(document.querySelector('#pointStyling'), pointStylingOptions);
-      pointStylingChart.render();
-  
-      // Line Styling (Filled)
-      var lineStylingFilledOptions = {
-        chart: {
-          type: 'line',
-          height: 350
-        },
-        series: [
-          {
-            name: 'Abertos',
-            data: Abertos
-          },
-          {
-            name: 'Fechados',
-            data: Fechados
-          }
-        ],
-        xaxis: {
-          categories: ANO_MES
-        },
-        stroke: {
-          width: 2
-        },
-        fill: {
-          type: 'gradient',
-          gradient: {
-            shade: 'dark',
-            type: 'vertical',
-            shadeIntensity: 0.5,
-            inverseColors: false,
-            opacityFrom: 1,
-            opacityTo: 0.8,
-            stops: [0, 100]
-          }
-        }
-      };
-  
-      var lineStylingFilledChart = new ApexCharts(document.querySelector('#lineStylingFilled'), lineStylingFilledOptions);
-      lineStylingFilledChart.render();
-  
-      // Line Styling (Unfilled)
-      var lineStylingUnfilledOptions = {
-        chart: {
-          type: 'line',
-          height: 350
-        },
-        series: [
-          {
-            name: 'Abertos',
-            data: Abertos
-          },
-          {
-            name: 'Fechados',
-            data: Fechados
-          }
-        ],
-        xaxis: {
-          categories: ANO_MES
-        },
-        stroke: {
-          width: 2,
-          dashArray: [5, 5]
-        }
-      };
-  
-      var lineStylingUnfilledChart = new ApexCharts(document.querySelector('#lineStylingUnfilled'), lineStylingUnfilledOptions);
-      lineStylingUnfilledChart.render();
-    </script>
+<div class="container">
+  <div class="row">
+  <div class="col-sm-6">
+      <h1>Gráfico de Linha</h1>
+      {{ div|safe }}
+  </div>
+  <div class="col-sm-6">
+      <h1>Gráfico de Barras</h1>
+      {{ div2|safe }}
+  </div>
+  <div class="row">
+  <div class="col-sm-8">
+      <h1>Gráfico de Dispersão</h1>
+      {{ div3|safe }}
+  </div>
+  </div>
+  <div class="row">
+      <div class="col-sm-6">
+      <h1>Gráfico de Barras Clusterizadas</h1>
+      {{ div4|safe }}
+      </div>
+  </div>
+  <div class="col-sm-6">
+      <h1>Gráfico de Linhas Clusterizadas</h1>
+      {{ div5|safe }}
+  </div>
+      {{ script|safe }}
+      {{ script2|safe }}
+      {{ script3|safe }}
+      {{ script4|safe }}
+      {{ script5|safe }}
+  </div>
+</div>
+</div>
+</div>
+</div>
     {% endblock content %}

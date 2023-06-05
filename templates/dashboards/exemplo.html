@@ -2,7 +2,7 @@
 {% block content %}
 {% load static %}
 
-<script src="{% static 'chartkick/Chart.bundle.js' %}"></script>
+<script src={% static "js/charts.js" %}></script>
 <script src="{% static 'chartkick/chartkick.js' %}"></script>
 
 <div class="container">
@@ -10,368 +10,123 @@
     
     
     {{ chart_teste }}
-    
-    <div>
-        <canvas id="myChart"></canvas>
-      </div>
-      
-      
-      <script>
-        const DATA_COUNT = 7;
-        
-        const labels = ['jan','fev','mar','br','m'];
-        const data = {
-                labels: labels,
-                datasets: [
-                {
-                   label: 'Dataset 1',
-                   data: [1,3,67,5,6],
-                   backgroundColor: 'rgba(75, 192, 192, 0.5)',
-                   stack: 'Stack 0',
-                },
-                {
-                    label: 'Dataset 2',
-                    data: [5,3,4,57,6],
-                    backgroundColor: 'rgba(255, 99, 132, 0.5)',
-                    stack: 'Stack 2',
-                },
-                {
-                    label: 'Dataset 3',
-                    data: [5,35,4,5,6],
-                    backgroundColor: 'rgba(147, 250, 165, 1)',
-                    stack: 'Stack 1',
-                },
-                ]};
-        const ctx = document.getElementById('myChart');
-      
-        new Chart(ctx, {
-      type: 'bar',
-      data: data,
-      options: {
-        plugins: {
-          title: {
-            display: true,
-            text: 'Chart.js Bar Chart - Stacked'
+
+    <canvas id="chart2"></canvas>
+
+<script>
+  // Dados fornecidos
+  var ANO_MES = ['2023-04', '2023-04', '2023-04', '2023-04', '2023-04', '2023-05', '2023-05', '2023-05'];
+  var Fila = ['TI::N2::Fluig', 'TI::N2::Diversos', 'TI::N2::Hardware', 'TI::N2::Software',
+              'TI::N3::Projetos::Melhorias', 'TI::N2::Fluig', 'TI::N2::Diversos', 'TI::N2::Datasul/Protheus'];
+  var Abertos = [96, 18, 13, 7, 3, 107, 22, 147];
+  var Fechados = [95, 18, 12, 7, 2, 99, 19, 135];
+
+  // Agrupando os dados por "ANO_MES" e "Fila"
+  var dadosAgrupados = {};
+  for (var i = 0; i < ANO_MES.length; i++) {
+    var anoMes = ANO_MES[i];
+    var fila = Fila[i];
+    var chave = anoMes + "_" + fila;
+
+    if (!dadosAgrupados[chave]) {
+      dadosAgrupados[chave] = { abertos: 0, fechados: 0 };
+    }
+
+    dadosAgrupados[chave].abertos += Abertos[i];
+    dadosAgrupados[chave].fechados += Fechados[i];
+  }
+
+  // Convertendo os dados agrupados em formato adequado para o Chart.js
+  var labels = Array.from(new Set(ANO_MES));
+  var datasets = [];
+
+  var filas = Array.from(new Set(Fila));
+  for (var i = 0; i < filas.length; i++) {
+    var fila = filas[i];
+    var dadosFilaAbertos = [];
+    var dadosFilaFechados = [];
+
+    for (var j = 0; j < labels.length; j++) {
+      var anoMes = labels[j];
+      var chave = anoMes + "_" + fila;
+      dadosFilaAbertos.push(dadosAgrupados[chave] ? dadosAgrupados[chave].abertos : 0);
+      dadosFilaFechados.push(dadosAgrupados[chave] ? dadosAgrupados[chave].fechados : 0);
+    }
+
+    datasets.push({
+      label: fila + ' (Abertos)',
+      data: dadosFilaAbertos,
+      backgroundColor: "rgba(75, 192, 192, 0.5)",
+      stack: "Stack " + i
+    });
+
+    datasets.push({
+      label: fila + ' (Fechados)',
+      data: dadosFilaFechados,
+      backgroundColor: "rgba(192, 75, 75, 0.5)",
+      stack: "Stack " + i
+    });
+  }
+
+  // Plugin personalizado para renderizar os valores das colunas
+  var valuePlugin = {
+    id: 'valueLabels',
+    afterDatasetsDraw: function(chart) {
+      var ctx = chart.ctx;
+
+      chart.data.datasets.forEach(function(dataset, datasetIndex) {
+        var meta = chart.getDatasetMeta(datasetIndex);
+
+        if (!meta.hidden) {
+          meta.data.forEach(function(element, index) {
+            // Renderiza o valor apenas para colunas visíveis
+            if (element._model.width > 0) {
+              var data = dataset.data[index];
+              ctx.fillStyle = 'black';
+              ctx.font = 'bold 12px Arial';
+              ctx.textAlign = 'center';
+              ctx.fillText(data, element._model.x, element._model.y - 10);
+            }
+          });
+        }
+      });
+    }
+  };
+
+  // Configurando o gráfico
+  var ctx = document.getElementById("chart2").getContext("2d");
+  var chart = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: labels,
+      datasets: datasets
+    },
+    options: {
+      responsive: true,
+      scales: {
+        x: {
+          grid: {
+            display: false
           },
+          stacked: true,
+          ticks: {
+            maxRotation: 90,
+            minRotation: 90
+          }
         },
-        responsive: true,
-        interaction: {
-          intersect: false,
-        },
-        scales: {
-          x: {
-            stacked: true,
-          },
-          y: {
-            stacked: true
+        y: {
+          beginAtZero: true,
+          stacked: true,
+          ticks: {
+            stepSize: 50
           }
         }
+      },
+      plugins: {
+        // Adiciona o plugin personalizado
+        valueLabels: valuePlugin
       }
-    });
-      </script>
-    
-      <canvas id="stackedBarChart"></canvas>
-      <canvas id="verticalBarChart"></canvas>
-      <canvas id="horizontalBarChart"></canvas>
-      <canvas id="interpolationModes"></canvas>
-      <canvas id="lineChart"></canvas>
-      <canvas id="multiAxisLineChart"></canvas>
-      <canvas id="pointStyling"></canvas>
-      <canvas id="lineStylingFilled"></canvas>
-      <canvas id="lineStylingUnfilled"></canvas>
-    
-      <script>
-        const ANO_MES = ['2023-04', '2023-06', '2023-05', '2023-07', '2023-08'];
-
-    
-        // Stacked Bar Chart
-        var stackedBarCtx = document.getElementById('stackedBarChart').getContext('2d');
-        var stackedBarChart = new Chart(stackedBarCtx, {
-          type: 'bar',
-          data: {
-            labels: {{ ANO_MES }},
-            datasets: [
-              {
-                label: 'Abertos',
-                data: {{ Abertos }} ,
-                backgroundColor: 'rgba(75, 192, 192, 0.5)'
-              },
-              {
-                label: 'Fechados',
-                data:  {{ Fechados }},
-                backgroundColor: 'rgba(255, 99, 132, 0.5)'
-              }
-            ]
-          },
-          options: {
-            scales: {
-              x: {
-                stacked: true
-              },
-              y: {
-                stacked: true
-              }
-            }
-          }
-        });
-    
-        // Vertical Bar Chart
-        var verticalBarCtx = document.getElementById('verticalBarChart').getContext('2d');
-        var verticalBarChart = new Chart(verticalBarCtx, {
-          type: 'bar',
-          data: {
-            labels: ANO_MES,
-            datasets: [
-              {
-                label: 'Abertos',
-                data:  {{ Abertos }},
-                backgroundColor: 'rgba(75, 192, 192, 0.5)'
-              },
-              {
-                label: 'Fechados',
-                data:  {{ Fechados }},
-                backgroundColor: 'rgba(255, 99, 132, 0.5)'
-              }
-            ]
-          },
-          options: {
-            indexAxis: 'y'
-          }
-        });
-    
-        // Horizontal Bar Chart
-        var horizontalBarCtx = document.getElementById('horizontalBarChart').getContext('2d');
-        var horizontalBarChart = new Chart(horizontalBarCtx, {
-          type: 'bar',
-          data: {
-            labels: ANO_MES,
-            datasets: [
-              {
-                label: 'Abertos',
-                data:  {{ Abertos }},
-                backgroundColor: 'rgba(75, 192, 192, 0.5)'
-              },
-              {
-                label: 'Fechados',
-                data:  {{ Fechados }},
-                backgroundColor: 'rgba(255, 99, 132, 0.5)'
-              }
-            ]
-          },
-          options: {
-            indexAxis: 'x'
-          }
-        });
-    
-        // Interpolation Modes
-        var interpolationCtx = document.getElementById('interpolationModes').getContext('2d');
-        var interpolationChart = new Chart(interpolationCtx, {
-          type: 'line',
-          data: {
-            labels: ANO_MES,
-            datasets: [
-              {
-                label: 'Abertos',
-                data:  {{ Abertos }},
-                fill: false,
-                borderColor: 'rgba(75, 192, 192, 1)',
-                tension: 0.4,
-                borderWidth: 2,
-                pointRadius: 5
-              },
-              {
-                label: 'Fechados',
-                data:  {{ Fechados }},
-                fill: false,
-                borderColor: 'rgba(255, 99, 132, 1)',
-                tension: 0.4,
-                borderWidth: 2,
-                pointRadius: 5
-              }
-            ]
-          }
-        });
-    
-        // Line Chart
-        var lineCtx = document.getElementById('lineChart').getContext('2d');
-        var lineChart = new Chart(lineCtx, {
-          type: 'line',
-          data: {
-            labels: ANO_MES,
-            datasets: [
-              {
-                label: 'Abertos',
-                data:  {{ Abertos }},
-                fill: false,
-                borderColor: 'rgba(75, 192, 192, 1)',
-                tension: 0.4,
-                borderWidth: 2
-              },
-              {
-                label: 'Fechados',
-                data:  {{ Fechados }},
-                fill: false,
-                borderColor: 'rgba(255, 99, 132, 1)',
-                tension: 0.4,
-                borderWidth: 2
-              }
-            ]
-          }
-        });
-    
-        // Multi Axis Line Chart
-        var multiAxisLineCtx = document.getElementById('multiAxisLineChart').getContext('2d');
-        var multiAxisLineChart = new Chart(multiAxisLineCtx, {
-          type: 'line',
-          data: {
-            labels: ANO_MES,
-            datasets: [
-              {
-                label: 'Abertos',
-                data:  {{ Abertos }},
-                fill: false,
-                borderColor: 'rgba(75, 192, 192, 1)',
-                tension: 0.4,
-                yAxisID: 'abertos-y-axis',
-                borderWidth: 2
-              },
-              {
-                label: 'Fechados',
-                data:  {{ Fechados }},
-                fill: false,
-                borderColor: 'rgba(255, 99, 132, 1)',
-                tension: 0.4,
-                yAxisID: 'fechados-y-axis',
-                borderWidth: 2
-              }
-            ]
-          },
-          options: {
-            scales: {
-              y: {
-                position: 'left',
-                beginAtZero: true,
-                title: {
-                  display: true,
-                  text: 'Abertos'
-                },
-                grid: {
-                  drawBorder: false
-                }
-              },
-              'abertos-y-axis': {
-                position: 'right',
-                beginAtZero: true,
-                title: {
-                  display: true,
-                  text: 'Abertos'
-                },
-                grid: {
-                  drawBorder: false
-                }
-              },
-              'fechados-y-axis': {
-                position: 'right',
-                beginAtZero: true,
-                title: {
-                  display: true,
-                  text: 'Fechados'
-                },
-                grid: {
-                  drawBorder: false
-                }
-              }
-            }
-          }
-        });
-    
-        // Point Styling
-        var pointStylingCtx = document.getElementById('pointStyling').getContext('2d');
-        var pointStylingChart = new Chart(pointStylingCtx, {
-          type: 'line',
-          data: {
-            labels: ANO_MES,
-            datasets: [
-              {
-                label: 'Abertos',
-                data:  {{ Abertos }},
-                fill: false,
-                borderColor: 'rgba(75, 192, 192, 1)',
-                tension: 0.4,
-                borderWidth: 2,
-                pointBackgroundColor: 'rgba(75, 192, 192, 1)',
-                pointRadius: 5
-              },
-              {
-                label: 'Fechados',
-                data:  {{ Fechados }},
-                fill: false,
-                borderColor: 'rgba(255, 99, 132, 1)',
-                tension: 0.4,
-                borderWidth: 2,
-                pointBackgroundColor: 'rgba(255, 99, 132, 1)',
-                pointRadius: 5
-              }
-            ]
-          }
-        });
-    
-        // Line Styling (Filled)
-        var lineStylingFilledCtx = document.getElementById('lineStylingFilled').getContext('2d');
-        var lineStylingFilledChart = new Chart(lineStylingFilledCtx, {
-          type: 'line',
-          data: {
-            labels: ANO_MES,
-            datasets: [
-              {
-                label: 'Abertos',
-                data:  {{ Abertos }},
-                fill: 'start',
-                backgroundColor: 'rgba(75, 192, 192, 0.5)',
-                borderColor: 'rgba(75, 192, 192, 1)',
-                tension: 0.4,
-                borderWidth: 2
-              },
-              {
-                label: 'Fechados',
-                data:  {{ Fechados }},
-                fill: 'start',
-                backgroundColor: 'rgba(255, 99, 132, 0.5)',
-                borderColor: 'rgba(255, 99, 132, 1)',
-                tension: 0.4,
-                borderWidth: 2
-              }
-            ]
-          }
-        });
-    
-        // Line Styling (Unfilled)
-        var lineStylingUnfilledCtx = document.getElementById('lineStylingUnfilled').getContext('2d');
-        var lineStylingUnfilledChart = new Chart(lineStylingUnfilledCtx, {
-          type: 'line',
-          data: {
-            labels: ANO_MES,
-            datasets: [
-              {
-                label: 'Abertos',
-                data:  {{ Abertos }},
-                fill: false,
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderDash: [5, 5],
-                tension: 0.4,
-                borderWidth: 2
-              },
-              {
-                label: 'Fechados',
-                data: {{ Fechados }},
-                fill: false,
-                borderColor: 'rgba(255, 99, 132, 1)',
-                borderDash: [5, 5],
-                tension: 0.4,
-                borderWidth: 2
-              }
-            ]
-          }
-        });
-      </script>
+    }
+  });
+</script>
         {% endblock content %}

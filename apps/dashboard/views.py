@@ -15,6 +15,10 @@ from bokeh.transform import dodge
 from bokeh.models import ColumnDataSource
 from bokeh.transform import factor_cmap
 from chartkick.django import ColumnChart
+from bokeh.resources import CDN
+import numpy as np
+from bokeh.models import LabelSet, Label
+from bokeh.layouts import column, row
 
 
 def view_padrao(request):
@@ -78,63 +82,97 @@ def dashboard_ti(request):
 
     source = ColumnDataSource(data=dict(x=x, counts=counts))
 
-    p = figure(x_range=FactorRange(*x), height=600, title="Chamados fechados por Fila",
-               toolbar_location=None, tools="")
+    p = figure(x_range=FactorRange(*x), width=900, height=600, title="Chamados fechados por Fila",
+               toolbar_location="right")
 
     p.vbar(x='x', top='counts', width=0.9, source=source, line_color="white",
            fill_color=factor_cmap('x', palette=palette, factors=[str(fila) for fila in df['fila']], start=1, end=2))
-
+    labels = LabelSet(x='x', y='counts', text='counts', level='glyph',
+                      x_offset=-11, y_offset=10, source=source)
+    p.add_layout(labels)
     p.y_range.start = 0
     p.x_range.range_padding = 0.1
     p.xaxis.major_label_orientation = -45
     p.xgrid.grid_line_color = None
 
-    p1 = figure(x_range=ANO_MES, height=350,
-                title="Bar Chart", toolbar_location=None, tools="")
-    p1.vbar(x=ANO_MES, top=Abertos, width=0.9,
+    p1 = figure(x_range=ANO_MES, height=600, width=900,
+                title="Bar Chart", toolbar_location="right")
+
+    bar_width = 0.3  # Largura das barras
+    bar_offset = 0.30  # Deslocamento das barras
+    bar_offset2 = 0.70
+    p1.vbar(x=np.arange(len(ANO_MES)) + bar_offset2, top=Abertos, width=bar_width,
             color='blue', legend_label='Abertos')
-    p1.vbar(x=ANO_MES, top=Fechados, width=0.9,
+    p1.vbar(x=np.arange(len(ANO_MES)) + bar_offset, top=Fechados, width=bar_width,
             color='red', legend_label='Fechados')
 
-    # Bar Chart Nested
+    p1.legend.location = "top_left"  # Posição da legenda
+    p1.legend.title = "Legenda"  # Título da legenda
+    text_offset = 3
+    p1.text(x=np.arange(len(ANO_MES)) + bar_offset2, y=np.add(Abertos, text_offset), text=Abertos, text_font_size='10pt', text_color='black',
+            text_baseline='bottom', text_align='center')
 
-    p2 = figure(x_range=ANO_MES, height=350,
-                title="Bar Chart Nested", toolbar_location=None, tools="")
+    p1.text(x=np.arange(len(ANO_MES)) + bar_offset, y=np.add(Fechados, text_offset), text=Fechados, text_font_size='10pt', text_color='black',
+            text_baseline='bottom', text_align='center')
+
+    p2 = figure(x_range=ANO_MES, height=600, width=900,
+                title="Bar Chart Nested", toolbar_location="right")
     source = ColumnDataSource(
         data={'ANO_MES': ANO_MES, 'Filas': filas, 'Abertos': Abertos, 'Fechados': Fechados})
-    p2.vbar(x='ANO_MES', top='Abertos', width=0.9, fill_alpha=0.5,
+    p2.vbar(x='ANO_MES', top='Abertos', width=0.5, fill_alpha=0.5,
             color='blue', legend_field='Filas', source=source)
-    p2.vbar(x='ANO_MES', top='Fechados', width=0.9, fill_alpha=0.5,
+    p2.vbar(x='ANO_MES', top='Fechados', width=0.5, fill_alpha=0.5,
             color='blue', legend_field='Filas', source=source)
-    # Bar Chart Stacking and Grouping
-    p3 = figure(x_range=ANO_MES, height=350, title="Bar Chart Stacking and Grouping",
-                toolbar_location=None, tools="")
-    p3.vbar_stack(['Abertos', 'Fechados'], x='ANO_MES', width=0.9, color=['blue', 'red'],
-                  legend_label=['Abertos', 'Fechados'], source=ColumnDataSource(data={'ANO_MES': ANO_MES, 'Abertos': Abertos, 'Fechados': Fechados}))
+    p3 = figure(x_range=ANO_MES, height=600, title="Bar Chart Stacking and Grouping",
+                toolbar_location="right", width=900)
+
+    source = ColumnDataSource(
+        data={'ANO_MES': ANO_MES, 'Abertos': Abertos, 'Fechados': Fechados})
+
+    p3.vbar_stack(['Abertos', 'Fechados'], x='ANO_MES', width=0.5, color=['blue', 'red'],
+                  legend_label=['Abertos', 'Fechados'], source=source)
+
+    p3.legend.location = "top_left"  # Posição da legenda
+    p3.legend.title = "Legenda"  # Título da legenda
+
+    text_offset = 5  # Ajuste de posição vertical dos textos
+
+    # Conversão das datas para strings para as posições horizontais
+
+    p3.xaxis.major_label_orientation = 1  # Orientação dos rótulos do eixo x
 
     # Line Chart
-    p4 = figure(x_range=ANO_MES, height=350,
-                title="Line Chart", toolbar_location=None, tools="")
+    p4 = figure(x_range=ANO_MES, height=600,
+                title="Line Chart", toolbar_location="right")
     p4.line(ANO_MES, Abertos, line_width=2, color='blue')
 
     # Multiple Lines
-    p5 = figure(x_range=ANO_MES, height=350,
-                title="Multiple Lines", toolbar_location=None, tools="")
+    p5 = figure(x_range=ANO_MES, height=600,
+                title="Multiple Lines", toolbar_location="right")
+
     p5.line(ANO_MES, Abertos, line_width=2,
             color='blue', legend_label='Abertos')
     p5.line(ANO_MES, Fechados, line_width=2,
             color='red', legend_label='Fechados')
 
+# Adicionando os valores acima das linhas Abertos
+    p5.text(ANO_MES, Abertos, text=Abertos, text_font_size='10pt',
+            text_color='blue', text_baseline='bottom', text_align='center')
+
+# Adicionando os valores acima das linhas Fechados
+    p5.text(ANO_MES, Fechados, text=Fechados, text_font_size='10pt',
+            text_color='red', text_baseline='bottom', text_align='center')
+
     # Stacked Lines
-    p6 = figure(x_range=ANO_MES, height=350,
-                title="Stacked Lines", toolbar_location=None, tools="")
+    p6 = figure(x_range=ANO_MES, height=600, width=500,
+                title="Stacked Lines", toolbar_location=None)
     p6.line(ANO_MES, Abertos, line_width=2,
             color='blue', legend_label='Abertos')
     p6.line(ANO_MES, [a + f for a, f in zip(Abertos, Fechados)],
             line_width=2, color='red', legend_label='Total')
 
     # Combining with Markers
-    p7 = figure(x_range=ANO_MES, height=350,
+    p7 = figure(x_range=ANO_MES, height=350, width=500,
                 title="Combining with Markers", toolbar_location=None, tools="")
     p7.line(ANO_MES, Abertos, line_width=2,
             color='blue', legend_label='Abertos')
@@ -144,8 +182,20 @@ def dashboard_ti(request):
     p8 = figure(x_range=ANO_MES, height=350,
                 title="Scatter Markers", toolbar_location=None, tools="")
     p8.scatter(ANO_MES, Abertos, size=8, color='blue')
-
+    p1.toolbar.autohide = True
+    p2.toolbar.autohide = True
+    p3.toolbar.autohide = True
+    p4.toolbar.autohide = True
+    p5.toolbar.autohide = True
+    p6.toolbar.autohide = True
+    p7.toolbar.autohide = True
+    p8.toolbar.autohide = True
     # Renderizar os gráficos
+    layout = column(row(p1, p2), row(p3, p4),
+                    sizing_mode='stretch_both')
+
+    # Obter o HTML e o JavaScript para o layout responsivo
+    script, div = components(layout)
     script1, div1 = components(p1)
     script2, div2 = components(p2)
     script3, div3 = components(p3)
@@ -156,6 +206,7 @@ def dashboard_ti(request):
     script8, div8 = components(p8)
     # Gerar o HTML e o script do gráfico
     script, div = components(p)
+    script_layout, div_layout = components(layout)
 
     context = {
         'script': script,
@@ -176,6 +227,8 @@ def dashboard_ti(request):
         'div7': div7,
         'script8': script8,
         'div8': div8,
+        'script_layout': script_layout,
+        'div_layout': div_layout,
         'activegroup': activegroup
     }
     return render(request, 'dashboards/ti.html', context)
@@ -211,7 +264,7 @@ def dashboard_ti2(request):
         fechados.append(chamado.fechados)
 
     # Criando o plot2 do Bokeh
-    plot2 = figure(title="Dashboard de Abertos e Fechados", x_axis_label='Data', y_axis_label='Quantidade',
+    plot2 = figure(title="Dashboard de Abertos e Fechados", x_axis_name='Data', y_axis_name='Quantidade',
                    x_range=ano_mes, width=600, height=400)
 
     # Criando uma fonte de dados do Bokeh
@@ -222,9 +275,9 @@ def dashboard_ti2(request):
     }
 
     # Adicionando as colunas "Abertos" e "Fechados" ao gráfico
-    plot2.vbar(x=dodge('data2', -0.15, range=plot2.x_range), top='abertos2', width=0.25, color='blue', legend_label='Abertos',
+    plot2.vbar(x=dodge('data2', -0.15, range=plot2.x_range), top='abertos2', width=0.25, color='blue', legend_name='Abertos',
                source=source)
-    plot2.vbar(x=dodge('data2', 0.15, range=plot2.x_range), top='fechados2', width=0.25, color='red', legend_label='Fechados',
+    plot2.vbar(x=dodge('data2', 0.15, range=plot2.x_range), top='fechados2', width=0.25, color='red', legend_name='Fechados',
                source=source)
 
     # Ajustando o estilo do plot2
@@ -349,15 +402,159 @@ def dashboard_controladoria(request):
 @permission_required('global_permissions.combio_dashboard_controladoria', login_url='erro_page')
 def exemplo(request):
     activegroup = 'Dashboard'
-    ANO_MES = ["2023-04", "2023-06", "2023-05", "2023-07", "2023-08"]
+
+
+# Exemplo de uso
+    ANO_MES = ('2023-04', '2023-04', '2023-04', '2023-04',
+               '2023-04', '2023-05', '2023-05', '2023-05')
+    Fila = ('TI::N2::Fluig', 'TI::N2::Diversos', 'TI::N2::Hardware', 'TI::N2::Software',
+            'TI::N3::Projetos::Melhorias', 'TI::N2::Fluig', 'TI::N2::Diversos', 'TI::N2::Datasul/Protheus')
+    Abertos = (96, 18, 13, 7, 3, 107, 22, 147)
+    Fechados = (95, 18, 12, 7, 2, 99, 19, 135)
+
+    resultado, cores_fundo = transformar_em_objeto(
+        ANO_MES, Fila, Abertos, Fechados)
+    data = [{'name': 'Workout', 'data': {'2021-01-01': [1, 4],  '2021-01-02': [2, 4]}},
+            {'name': 'Call parents', 'data': {'2021-01-01': [5, 3], '2021-01-02': [3, 4]}}]
+    """ ANO_MES = ["2023-04", "2023-06", "2023-05", "2023-07", "2023-08"]
+    fila = ["Fila "]
     Abertos = [3, 107, 22, 147, 67]
     Fechados = [95, 18, 99, 19, 135]
-    data = [{'name': 'Workout', 'data': {'2021-01-01': 3, '2021-01-02': 4}},
-            {'name': 'Call parents', 'data': {'2021-01-01': 5, '2021-01-02': 3}}]
-    chart_teste = ColumnChart(
-        data, xtitle='Time', ytitle='Population', download=True)
+   
+    data1 = [
+        {
+            "name": "TI::N2::Fluig (Abertos)",
+            "data": {'2023-04': [96], '2023-05': [107]},
+            "backgroundColor": "rgba(75, 192, 192, 0.5)",
+            "stack": "Stack 0"
+        },
+        {
+            "name": "TI::N2::Fluig (Fechados)",
+            "data": {'2023-04': [95], '2023-05': [99]},
+            "backgroundColor": "rgba(192, 75, 75, 0.5)",
+            "stack": "Stack 0"
+        },
+        {
+            "name": "TI::N2::Diversos (Abertos)",
+            "data": {'2023-04': [18], '2023-05': [22]},
+            "backgroundColor": "rgba(75, 192, 192, 0.5)",
+            "stack": "Stack 1"
+        },
+        {
+            "name": "TI::N2::Diversos (Fechados)",
+            "data": {'2023-04': [18], '2023-05': [19]},
+            "backgroundColor": "rgba(192, 75, 75, 0.5)",
+            "stack": "Stack 1"
+        },
+        {
+            "name": "TI::N2::Hardware (Abertos)",
+            "data": {'2023-04': [13], '2023-05': [3]},
+            "backgroundColor": "rgba(75, 192, 192, 0.5)",
+            "stack": "Stack 2"
+        },
+        {
+            "name": "TI::N2::Hardware (Fechados)",
+            "data": {'2023-04': [5], '2023-05': [22]},
+            "backgroundColor": "rgba(192, 75, 75, 0.5)",
+            "stack": "Stack 2"
+        }]
+    library= 
+"""
+    chart_teste = ColumnChart(resultado, xtitle='Time', adapter='chartjs',
+                              ytitle='Population', download=True, colors=cores_fundo, responsive=True)
+    chart_teste1 = ColumnChart(
+        data, xtitle='Time', adapter='google', ytitle='Population', download=True,  stacked=True, )
+    chart_teste2 = ColumnChart(
+        data, xtitle='Time', adapter='highcharts', ytitle='Population', download=True,  stacked=True, )
     context = {
-        'activegroup': activegroup, 'Abertos': Abertos, 'Fechados': Fechados, 'ANO_MES': ANO_MES, 'chart_teste': chart_teste
+        'activegroup': activegroup, 'Abertos': Abertos, 'Fechados': Fechados, 'ANO_MES': ANO_MES, 'chart_teste': chart_teste, 'chart_teste1': chart_teste1, 'chart_teste2': chart_teste2
     }
 
     return render(request, 'dashboards/exemplo.html', context)
+
+
+def transformar_em_objeto(ANO_MES, Fila, Abertos, Fechados):
+    objeto = []
+    cores_fundo = ["rgba(75, 192, 192, 0.5)", "rgba(192, 75, 75, 0.5)"]
+    indice_cor = 0
+
+    for i in range(len(Fila)):
+        nome_abertos = Fila[i] + " (Abertos)"
+        nome_fechados = Fila[i] + " (Fechados)"
+
+        if Abertos[i] != 0:
+            dados_abertos = {
+                "name": nome_abertos,
+                "data": {ANO_MES[i]: [Abertos[i]]},
+                "stack": "Stack " + str(i)
+            }
+            objeto.append(dados_abertos)
+
+        if Fechados[i] != 0:
+            dados_fechados = {
+                "name": nome_fechados,
+                "data": {ANO_MES[i]: [Fechados[i]]},
+                "stack": "Stack " + str(i)
+            }
+            objeto.append(dados_fechados)
+
+        indice_cor += 1
+        if indice_cor >= len(cores_fundo):
+            indice_cor = 0
+
+    objeto_cores_fundo = []
+    for i in range(len(objeto)):
+        objeto_cores_fundo.append(cores_fundo[i % len(cores_fundo)])
+
+    return objeto, objeto_cores_fundo
+
+
+def dashboard_exemplo2(request):
+    # Dados para os gráficos
+    x = [1, 2, 3, 4, 5]
+    y = [6, 7, 2, 4, 5]
+    # Criação dos gráficos
+    line_plot = figure(title="Gráfico de Linha",
+                       x_axis_label='X', y_axis_label='Y')
+    line_plot.line(x, y, legend_label='Linha', line_width=2)
+
+    bar_plot = figure(title="Gráfico de Barras",
+                      x_axis_label='Categoria', y_axis_label='Valores')
+    bar_plot.vbar(x=['A', 'B', 'C', 'D'], top=[4, 6, 8, 2], width=0.5)
+
+    bar_plot = figure(title="Gráfico de Barras",
+                      x_axis_label='Categoria', y_axis_label='Valores')
+    bar_plot.vbar(x=x, top=y, width=0.5)
+
+    scatter_plot = figure(title="Gráfico de Dispersão",
+                          x_axis_label='X', y_axis_label='Y')
+    scatter_plot.circle(x, y, size=10, color='navy', alpha=0.5)
+ # Criação do gráfico de barras clusterizadas
+    clustered_bar_plot = figure(title="Gráfico de Barras Clusterizadas", x_range=[
+                                'Grupo 1', 'Grupo 2', 'Grupo 3'], x_axis_label='Grupos', y_axis_label='Valores')
+    clustered_bar_plot.vbar(x=['Grupo 1', 'Grupo 2', 'Grupo 3'], top=[
+                            4, 5, 2], width=0.2, color='red', legend_label='Série 1')
+    clustered_bar_plot.vbar(x=['Grupo 1', 'Grupo 2', 'Grupo 3'], top=[
+                            2, 3, 4], width=0.2, color='blue', legend_label='Série 2')
+    clustered_bar_plot.vbar(x=['Grupo 1', 'Grupo 2', 'Grupo 3'], top=[
+                            1, 6, 5], width=0.2, color='green', legend_label='Série 3')
+
+    # Criação do gráfico de linhas clusterizadas
+    clustered_line_plot = figure(
+        title="Gráfico de Linhas Clusterizadas", x_axis_label='X', y_axis_label='Y')
+    clustered_line_plot.line(
+        x, y, legend_label='Linha 1', line_width=2, color='red')
+    clustered_line_plot.line(
+        x, [5, 4, 3, 2, 1], legend_label='Linha 2', line_width=2, color='blue')
+    clustered_line_plot.line(
+        x, [2, 2, 2, 2, 2], legend_label='Linha 3', line_width=2, color='green')
+
+    # Renderiza os gráficos para HTML
+    script, div = components(line_plot, CDN)
+    script2, div2 = components(bar_plot, CDN)
+    script3, div3 = components(scatter_plot, CDN)
+    script4, div4 = components(clustered_bar_plot, CDN)
+    script5, div5 = components(clustered_line_plot, CDN)
+    # Renderiza os gráficos para HTML
+
+    return render(request, 'dashboards/exemplo2.html', {'script': script, 'div': div, 'script2': script2, 'div2': div2, 'script3': script3, 'div3': div3, 'script4': script4, 'div4': div4, 'script5': script5, 'div5': div5})

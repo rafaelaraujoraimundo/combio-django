@@ -6,14 +6,23 @@
 <script src="{% static 'chartkick/chartkick.js' %}"></script>
     
 <h2>Agrupado</h2>
-<div>
+<div class='row'>
+    <div class="col-6">
+        {{ div_layout|safe }}
+        {{ script_layout|safe }}
+    </div>
+</div>
+<div class='row'>
+<div class="col-6">
 {{ div|safe }}
 {{ script|safe }}
 </div>
+<div class="col-6">
 <h2>Bar Chart</h2>
 {{ div1|safe }}
 {{ script1|safe }}
-
+</div>
+</div>
 <h2>Bar Chart Nested</h2>
 {{ div2|safe }}
 {{ script2|safe }}

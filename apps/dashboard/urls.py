@@ -1,7 +1,7 @@
 from django.urls import path
 from django.contrib.auth.decorators import permission_required
 
-from dashboard.views import dashboard_ti, dashboard_controladoria, exemplo
+from dashboard.views import dashboard_ti, dashboard_controladoria, exemplo, dashboard_exemplo2
 
 
 urlpatterns = [
@@ -10,4 +10,6 @@ urlpatterns = [
          name='dashboard_controladoria'),
     path('exemplo', exemplo,
          name='dashboard_exemplo'),
+    path('exemplo2', dashboard_exemplo2,
+         name='dashboard_exemplo2'),
 ]
