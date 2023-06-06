@@ -10,16 +10,13 @@
                 <div class="hover-circle"><i class="ri-close-fill"></i></div>
              </div>
              <div class="iq-navbar-logo d-flex justify-content-between ml-3">
-                <a href="index.html" class="header-logo">
+               <a href="{% url "index" %}" class="header-logo">
                 <img src={% static "images/logo.png" %} class="img-fluid rounded" alt="">
-                <span>FinDash</span>
-                </a>
+               </a>
              </div>
           </div>
         
-          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"  aria-label="Toggle navigation">
-          <i class="ri-menu-3-line"></i>
-          </button>
+          
           <div class="collapse navbar-collapse dropdown ml-auto" id="navbarSupportedContent">
              <ul class="navbar-nav ml-auto navbar-list">
                 

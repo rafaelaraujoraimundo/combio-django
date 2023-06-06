@@ -12,12 +12,12 @@ from bokeh.embed import components
 from bokeh.models import FactorRange
 from plotly.offline import plot
 from bokeh.transform import dodge
-from bokeh.models import ColumnDataSource
+from bokeh.models import ColumnDataSource, Select
 from bokeh.transform import factor_cmap
 from chartkick.django import ColumnChart
 from bokeh.resources import CDN
 import numpy as np
-from bokeh.models import LabelSet, Label
+from bokeh.models import LabelSet, Label, TapTool, CustomJS, CDSView, GroupFilter
 from bokeh.layouts import column, row, gridplot
 
 
@@ -108,6 +108,7 @@ def dashboard_ti(request):
 
     p1.legend.location = "top_left"  # Posição da legenda
     p1.legend.title = "Legenda"  # Título da legenda
+    p1.legend.click_policy = "hide"
     text_offset = 3
     p1.text(x=np.arange(len(ANO_MES)) + bar_offset2, y=np.add(Abertos, text_offset), text=Abertos, text_font_size='10pt', text_color='black',
             text_baseline='bottom', text_align='center')
@@ -123,6 +124,8 @@ def dashboard_ti(request):
             color='blue', legend_field='Filas', source=source)
     p2.vbar(x='ANO_MES', top='Fechados', width=0.5, fill_alpha=0.5,
             color='blue', legend_field='Filas', source=source)
+    p2.legend.click_policy = "hide"
+
     p3 = figure(width_policy="auto", height_policy="auto", x_range=ANO_MES, height=600, title="Bar Chart Stacking and Grouping",
                 toolbar_location="above", resizable=True, width=900, sizing_mode="stretch_width")
 
@@ -199,6 +202,7 @@ def dashboard_ti(request):
         [row(p5, p6)],
         [row(p7, p8)]
     ]
+
     grid = gridplot(layout, sizing_mode="stretch_width")
 
     # Obter o HTML e o JavaScript para o layout responsivo
