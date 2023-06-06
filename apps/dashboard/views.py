@@ -96,7 +96,7 @@ def dashboard_ti(request):
     p.xgrid.grid_line_color = None
 
     p1 = figure(x_range=ANO_MES, height=600, width=900,
-                title="Bar Chart", toolbar_location="above", resizable=True)
+                title="Bar Chart", toolbar_location="above", resizable=True, sizing_mode="stretch_width")
 
     bar_width = 0.3  # Largura das barras
     bar_offset = 0.30  # Deslocamento das barras
@@ -116,7 +116,7 @@ def dashboard_ti(request):
             text_baseline='bottom', text_align='center')
 
     p2 = figure(width_policy="auto", height_policy="auto", x_range=ANO_MES, height=600, width=900,
-                title="Bar Chart Nested", toolbar_location="above", resizable=True)
+                title="Bar Chart Nested", toolbar_location="above", resizable=True, sizing_mode="stretch_width")
     source = ColumnDataSource(
         data={'ANO_MES': ANO_MES, 'Filas': filas, 'Abertos': Abertos, 'Fechados': Fechados})
     p2.vbar(x='ANO_MES', top='Abertos', width=0.5, fill_alpha=0.5,
@@ -124,7 +124,7 @@ def dashboard_ti(request):
     p2.vbar(x='ANO_MES', top='Fechados', width=0.5, fill_alpha=0.5,
             color='blue', legend_field='Filas', source=source)
     p3 = figure(width_policy="auto", height_policy="auto", x_range=ANO_MES, height=600, title="Bar Chart Stacking and Grouping",
-                toolbar_location="above", resizable=True, width=900)
+                toolbar_location="above", resizable=True, width=900, sizing_mode="stretch_width")
 
     source = ColumnDataSource(
         data={'ANO_MES': ANO_MES, 'Abertos': Abertos, 'Fechados': Fechados})
@@ -143,12 +143,12 @@ def dashboard_ti(request):
 
     # Line Chart
     p4 = figure(x_range=ANO_MES, height=600,
-                title="Line Chart", toolbar_location="above", resizable=True)
+                title="Line Chart", toolbar_location="above", resizable=True, sizing_mode="stretch_width")
     p4.line(ANO_MES, Abertos, line_width=2, color='blue')
 
     # Multiple Lines
     p5 = figure(x_range=ANO_MES, height=600,
-                title="Multiple Lines", toolbar_location="above", resizable=True)
+                title="Multiple Lines", toolbar_location="above", resizable=True, sizing_mode="stretch_width")
 
     p5.line(ANO_MES, Abertos, line_width=2,
             color='blue', legend_label='Abertos')
@@ -165,7 +165,7 @@ def dashboard_ti(request):
 
     # Stacked Lines
     p6 = figure(x_range=ANO_MES, height=600, width=500,
-                title="Stacked Lines", toolbar_location=None)
+                title="Stacked Lines", toolbar_location=None, sizing_mode="stretch_width")
     p6.line(ANO_MES, Abertos, line_width=2,
             color='blue', legend_label='Abertos')
     p6.line(ANO_MES, [a + f for a, f in zip(Abertos, Fechados)],
@@ -173,14 +173,14 @@ def dashboard_ti(request):
 
     # Combining with Markers
     p7 = figure(x_range=ANO_MES, height=350, width=500,
-                title="Combining with Markers", toolbar_location=None, tools="")
+                title="Combining with Markers", toolbar_location=None, sizing_mode="stretch_width")
     p7.line(ANO_MES, Abertos, line_width=2,
             color='blue', legend_label='Abertos')
     p7.circle(ANO_MES, Abertos, size=8, color='blue', fill_color='white')
 
     # Scatter Markers
     p8 = figure(x_range=ANO_MES, height=350,
-                title="Scatter Markers", toolbar_location=None, tools="")
+                title="Scatter Markers", toolbar_location=None, sizing_mode="stretch_width")
     p8.scatter(ANO_MES, Abertos, size=8, color='blue')
     # p1.toolbar.autohide = True
     # p2.toolbar.autohide = True
@@ -199,7 +199,7 @@ def dashboard_ti(request):
         [row(p5, p6)],
         [row(p7, p8)]
     ]
-    grid = gridplot(layout, sizing_mode='scale_both')
+    grid = gridplot(layout, sizing_mode="stretch_width")
 
     # Obter o HTML e o JavaScript para o layout responsivo
     script_layout, div_layout = components(grid)
