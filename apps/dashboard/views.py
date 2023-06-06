@@ -18,7 +18,7 @@ from chartkick.django import ColumnChart
 from bokeh.resources import CDN
 import numpy as np
 from bokeh.models import LabelSet, Label
-from bokeh.layouts import column, row
+from bokeh.layouts import column, row, gridplot
 
 
 def view_padrao(request):
@@ -82,8 +82,8 @@ def dashboard_ti(request):
 
     source = ColumnDataSource(data=dict(x=x, counts=counts))
 
-    p = figure(x_range=FactorRange(*x), width=900, height=600, title="Chamados fechados por Fila",
-               toolbar_location="right")
+    p = figure(x_range=FactorRange(*x), width=1600, height=600, title="Chamados fechados por Fila",
+               toolbar_location="above", resizable=True)
 
     p.vbar(x='x', top='counts', width=0.9, source=source, line_color="white",
            fill_color=factor_cmap('x', palette=palette, factors=[str(fila) for fila in df['fila']], start=1, end=2))
@@ -96,7 +96,7 @@ def dashboard_ti(request):
     p.xgrid.grid_line_color = None
 
     p1 = figure(x_range=ANO_MES, height=600, width=900,
-                title="Bar Chart", toolbar_location="right")
+                title="Bar Chart", toolbar_location="above", resizable=True)
 
     bar_width = 0.3  # Largura das barras
     bar_offset = 0.30  # Deslocamento das barras
@@ -115,16 +115,16 @@ def dashboard_ti(request):
     p1.text(x=np.arange(len(ANO_MES)) + bar_offset, y=np.add(Fechados, text_offset), text=Fechados, text_font_size='10pt', text_color='black',
             text_baseline='bottom', text_align='center')
 
-    p2 = figure(x_range=ANO_MES, height=600, width=900,
-                title="Bar Chart Nested", toolbar_location="right")
+    p2 = figure(width_policy="auto", height_policy="auto", x_range=ANO_MES, height=600, width=900,
+                title="Bar Chart Nested", toolbar_location="above", resizable=True)
     source = ColumnDataSource(
         data={'ANO_MES': ANO_MES, 'Filas': filas, 'Abertos': Abertos, 'Fechados': Fechados})
     p2.vbar(x='ANO_MES', top='Abertos', width=0.5, fill_alpha=0.5,
             color='blue', legend_field='Filas', source=source)
     p2.vbar(x='ANO_MES', top='Fechados', width=0.5, fill_alpha=0.5,
             color='blue', legend_field='Filas', source=source)
-    p3 = figure(x_range=ANO_MES, height=600, title="Bar Chart Stacking and Grouping",
-                toolbar_location="right", width=900)
+    p3 = figure(width_policy="auto", height_policy="auto", x_range=ANO_MES, height=600, title="Bar Chart Stacking and Grouping",
+                toolbar_location="above", resizable=True, width=900)
 
     source = ColumnDataSource(
         data={'ANO_MES': ANO_MES, 'Abertos': Abertos, 'Fechados': Fechados})
@@ -143,12 +143,12 @@ def dashboard_ti(request):
 
     # Line Chart
     p4 = figure(x_range=ANO_MES, height=600,
-                title="Line Chart", toolbar_location="right")
+                title="Line Chart", toolbar_location="above", resizable=True)
     p4.line(ANO_MES, Abertos, line_width=2, color='blue')
 
     # Multiple Lines
     p5 = figure(x_range=ANO_MES, height=600,
-                title="Multiple Lines", toolbar_location="right")
+                title="Multiple Lines", toolbar_location="above", resizable=True)
 
     p5.line(ANO_MES, Abertos, line_width=2,
             color='blue', legend_label='Abertos')
@@ -182,51 +182,29 @@ def dashboard_ti(request):
     p8 = figure(x_range=ANO_MES, height=350,
                 title="Scatter Markers", toolbar_location=None, tools="")
     p8.scatter(ANO_MES, Abertos, size=8, color='blue')
-    p1.toolbar.autohide = True
-    p2.toolbar.autohide = True
-    p3.toolbar.autohide = True
-    p4.toolbar.autohide = True
-    p5.toolbar.autohide = True
-    p6.toolbar.autohide = True
-    p7.toolbar.autohide = True
-    p8.toolbar.autohide = True
+    # p1.toolbar.autohide = True
+    # p2.toolbar.autohide = True
+   # p3.toolbar.autohide = True
+    # p4.toolbar.autohide = True
+   # p5.toolbar.autohide = True
+   # p6.toolbar.autohide = True
+   # p7.toolbar.autohide = True
+   # p8.toolbar.autohide = True
     # Renderizar os gráficos
-    layout = column(row(p1, p2), row(p3, p4),
-                    sizing_mode='stretch_both')
+
+    layout = [
+        [p],
+        [row(p1, p2)],
+        [row(p3, p4)],
+        [row(p5, p6)],
+        [row(p7, p8)]
+    ]
+    grid = gridplot(layout, sizing_mode='scale_both')
 
     # Obter o HTML e o JavaScript para o layout responsivo
-    script, div = components(layout)
-    script1, div1 = components(p1)
-    script2, div2 = components(p2)
-    script3, div3 = components(p3)
-    script4, div4 = components(p4)
-    script5, div5 = components(p5)
-    script6, div6 = components(p6)
-    script7, div7 = components(p7)
-    script8, div8 = components(p8)
-    # Gerar o HTML e o script do gráfico
-    script, div = components(p)
-    script_layout, div_layout = components(layout)
+    script_layout, div_layout = components(grid)
 
     context = {
-        'script': script,
-        'div': div,
-        'script1': script1,
-        'div1': div1,
-        'script2': script2,
-        'div2': div2,
-        'script3': script3,
-        'div3': div3,
-        'script4': script4,
-        'div4': div4,
-        'script5': script5,
-        'div5': div5,
-        'script6': script6,
-        'div6': div6,
-        'script7': script7,
-        'div7': div7,
-        'script8': script8,
-        'div8': div8,
         'script_layout': script_layout,
         'div_layout': div_layout,
         'activegroup': activegroup
