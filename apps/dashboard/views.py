@@ -19,6 +19,7 @@ from bokeh.resources import CDN
 import numpy as np
 from bokeh.models import LabelSet, Label, TapTool, CustomJS, CDSView, GroupFilter
 from bokeh.layouts import column, row, gridplot
+import chartify
 
 
 def view_padrao(request):
@@ -67,11 +68,10 @@ def dashboard_ti(request):
         'fechados': fechados,
     }
     df = pd.DataFrame(data)
-    ANO_MES = ('2023-04', '2023-06', '2023-05', '2023-07', '2023-08')
-    Abertos = (3, 107, 22, 147, 67)
-    Fechados = (95, 18, 99, 19, 135)
-    filas = ['TI::N2::Fluig', 'TI::N2::Diversos', 'TI::N2::Hardware', 'TI::N2::Software',
-             'TI::N3::Projetos::Melhorias']
+    ANO_MES = ano_mes
+    Abertos = abertos
+    Fechados = fechados
+    filas = fila
 
     # Dashboard Aninhado e agrupado
     palette = ["#c9d9d3", "#718dbf", "#e84d60"]
@@ -387,108 +387,39 @@ def exemplo(request):
 
 
 # Exemplo de uso
-    ANO_MES = ('2023-04', '2023-04', '2023-04', '2023-04',
-               '2023-04', '2023-05', '2023-05', '2023-05')
-    Fila = ('TI::N2::Fluig', 'TI::N2::Diversos', 'TI::N2::Hardware', 'TI::N2::Software',
-            'TI::N3::Projetos::Melhorias', 'TI::N2::Fluig', 'TI::N2::Diversos', 'TI::N2::Datasul/Protheus')
-    Abertos = (96, 18, 13, 7, 3, 107, 22, 147)
-    Fechados = (95, 18, 12, 7, 2, 99, 19, 135)
+    ANO_MES = ('2023-04', '2023-06', '2023-05', '2023-05', '2023-04')
+    Abertos = (3, 107, 22, 147, 67)
+    Fechados = (95, 18, 99, 19, 135)
+    filas = ['TI::N2::Fluig', 'TI::N2::Diversos', 'TI::N2::Hardware', 'TI::N2::Software',
+             'TI::N3::Projetos::Melhorias']
 
-    resultado, cores_fundo = transformar_em_objeto(
-        ANO_MES, Fila, Abertos, Fechados)
-    data = [{'name': 'Workout', 'data': {'2021-01-01': [1, 4],  '2021-01-02': [2, 4]}},
-            {'name': 'Call parents', 'data': {'2021-01-01': [5, 3], '2021-01-02': [3, 4]}}]
-    """ ANO_MES = ["2023-04", "2023-06", "2023-05", "2023-07", "2023-08"]
-    fila = ["Fila "]
-    Abertos = [3, 107, 22, 147, 67]
-    Fechados = [95, 18, 99, 19, 135]
-   
-    data1 = [
-        {
-            "name": "TI::N2::Fluig (Abertos)",
-            "data": {'2023-04': [96], '2023-05': [107]},
-            "backgroundColor": "rgba(75, 192, 192, 0.5)",
-            "stack": "Stack 0"
-        },
-        {
-            "name": "TI::N2::Fluig (Fechados)",
-            "data": {'2023-04': [95], '2023-05': [99]},
-            "backgroundColor": "rgba(192, 75, 75, 0.5)",
-            "stack": "Stack 0"
-        },
-        {
-            "name": "TI::N2::Diversos (Abertos)",
-            "data": {'2023-04': [18], '2023-05': [22]},
-            "backgroundColor": "rgba(75, 192, 192, 0.5)",
-            "stack": "Stack 1"
-        },
-        {
-            "name": "TI::N2::Diversos (Fechados)",
-            "data": {'2023-04': [18], '2023-05': [19]},
-            "backgroundColor": "rgba(192, 75, 75, 0.5)",
-            "stack": "Stack 1"
-        },
-        {
-            "name": "TI::N2::Hardware (Abertos)",
-            "data": {'2023-04': [13], '2023-05': [3]},
-            "backgroundColor": "rgba(75, 192, 192, 0.5)",
-            "stack": "Stack 2"
-        },
-        {
-            "name": "TI::N2::Hardware (Fechados)",
-            "data": {'2023-04': [5], '2023-05': [22]},
-            "backgroundColor": "rgba(192, 75, 75, 0.5)",
-            "stack": "Stack 2"
-        }]
-    library= 
-"""
-    chart_teste = ColumnChart(resultado, xtitle='Time', adapter='chartjs',
-                              ytitle='Population', download=True, colors=cores_fundo, responsive=True)
-    chart_teste1 = ColumnChart(
-        data, xtitle='Time', adapter='google', ytitle='Population', download=True,  stacked=True, )
-    chart_teste2 = ColumnChart(
-        data, xtitle='Time', adapter='highcharts', ytitle='Population', download=True,  stacked=True, )
+    data = {
+        'ANO_MES': ANO_MES,
+        'Abertos': Abertos,
+        'Fechados': Fechados,
+        'Filas': filas
+    }
+
+    df = pd.DataFrame(data)
+
+    # Gráfico de Barras Aninhados
+    nested_chart = chartify.Chart(blank_labels=True, x_axis_type='categorical')
+    nested_chart.set_title('Gráfico de Barras Aninhados')
+    nested_chart.set_subtitle('Abertos e Fechados por Fila')
+    nested_chart.plot.bar(
+        data_frame=df,
+        categorical_columns=['Filas', 'ANO_MES'],
+        numeric_column='Abertos',
+        color_column='Fechados'
+    )
+    a = nested_chart.show(format='html')
+
     context = {
-        'activegroup': activegroup, 'Abertos': Abertos, 'Fechados': Fechados, 'ANO_MES': ANO_MES, 'chart_teste': chart_teste, 'chart_teste1': chart_teste1, 'chart_teste2': chart_teste2
+        'nested_chart': a,
+        'activegroup': activegroup
     }
 
     return render(request, 'dashboards/exemplo.html', context)
-
-
-def transformar_em_objeto(ANO_MES, Fila, Abertos, Fechados):
-    objeto = []
-    cores_fundo = ["rgba(75, 192, 192, 0.5)", "rgba(192, 75, 75, 0.5)"]
-    indice_cor = 0
-
-    for i in range(len(Fila)):
-        nome_abertos = Fila[i] + " (Abertos)"
-        nome_fechados = Fila[i] + " (Fechados)"
-
-        if Abertos[i] != 0:
-            dados_abertos = {
-                "name": nome_abertos,
-                "data": {ANO_MES[i]: [Abertos[i]]},
-                "stack": "Stack " + str(i)
-            }
-            objeto.append(dados_abertos)
-
-        if Fechados[i] != 0:
-            dados_fechados = {
-                "name": nome_fechados,
-                "data": {ANO_MES[i]: [Fechados[i]]},
-                "stack": "Stack " + str(i)
-            }
-            objeto.append(dados_fechados)
-
-        indice_cor += 1
-        if indice_cor >= len(cores_fundo):
-            indice_cor = 0
-
-    objeto_cores_fundo = []
-    for i in range(len(objeto)):
-        objeto_cores_fundo.append(cores_fundo[i % len(cores_fundo)])
-
-    return objeto, objeto_cores_fundo
 
 
 def dashboard_exemplo2(request):

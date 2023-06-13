@@ -2,38 +2,18 @@
 {% block content %}
 <div class="container">
   <div class="row">
-  <div class="col-sm-6">
-      <h1>Gráfico de Linha</h1>
-      {{ div|safe }}
+    <h1>Gráfico de Barras Aninhados</h1>
+    {{ nested_chart|safe }}
+
+    <h1>Gráfico de Barras Agrupados</h1>
+    {{ grouped_chart|safe }}
+
+    <h1>Gráfico de Barras Empilhados</h1>
+    {{ stacked_chart|safe }}
+
+    <h1>Gráfico de Barras Aninhados e Agrupados</h1>
+    {{ nested_grouped_chart|safe }}
   </div>
-  <div class="col-sm-6">
-      <h1>Gráfico de Barras</h1>
-      {{ div2|safe }}
-  </div>
-  <div class="row">
-  <div class="col-sm-8">
-      <h1>Gráfico de Dispersão</h1>
-      {{ div3|safe }}
-  </div>
-  </div>
-  <div class="row">
-      <div class="col-sm-6">
-      <h1>Gráfico de Barras Clusterizadas</h1>
-      {{ div4|safe }}
-      </div>
-  </div>
-  <div class="col-sm-6">
-      <h1>Gráfico de Linhas Clusterizadas</h1>
-      {{ div5|safe }}
-  </div>
-      {{ script|safe }}
-      {{ script2|safe }}
-      {{ script3|safe }}
-      {{ script4|safe }}
-      {{ script5|safe }}
-  </div>
-</div>
-</div>
-</div>
+
 </div>
     {% endblock content %}
